@@ -1,0 +1,331 @@
+---
+---
+
+<div id="poster-modal" class="poster-modal-overlay" aria-hidden="true">
+  <div class="poster-modal-container">
+    <div class="poster-modal-header">
+      <h3 class="modal-title">生成金句海报</h3>
+      <button id="close-poster-btn" class="close-btn" aria-label="关闭">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <div class="poster-preview-wrapper">
+      <canvas id="poster-canvas" width="800" height="1000"></canvas>
+    </div>
+
+    <div class="poster-modal-actions">
+      <button id="download-poster-btn" class="action-btn primary-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="7 10 12 15 17 10"></polyline>
+          <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+        <span>保存高清海报</span>
+      </button>
+      <button id="copy-poster-btn" class="action-btn secondary-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
+          <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
+        </svg>
+        <span>复制图片</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<style>
+  .poster-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(8px);
+    z-index: 1200;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+  .poster-modal-overlay.active {
+    display: flex !important;
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .poster-modal-container {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    width: 100%;
+    max-width: 460px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    animation: modalPop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  @keyframes modalPop {
+    from { transform: scale(0.92) translateY(10px); opacity: 0; }
+    to { transform: scale(1) translateY(0); opacity: 1; }
+  }
+  .poster-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border-color);
+  }
+  .modal-title {
+    font-size: 1rem;
+    font-weight: 600;
+  }
+  .close-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+  }
+  .close-btn:hover {
+    background: var(--bg-card-hover);
+    color: var(--text-primary);
+  }
+  .poster-preview-wrapper {
+    flex: 1;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow-y: auto;
+    background: var(--bg-secondary);
+  }
+  #poster-canvas {
+    width: 100%;
+    max-width: 360px;
+    height: auto;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+  }
+  .poster-modal-actions {
+    display: flex;
+    gap: 12px;
+    padding: 14px 18px;
+    border-top: 1px solid var(--border-color);
+    background: var(--bg-card);
+  }
+  .action-btn {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 42px;
+    border-radius: var(--radius-full);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    transition: all 0.15s ease;
+  }
+  .primary-btn {
+    background: var(--accent);
+    color: #ffffff;
+  }
+  .primary-btn:hover {
+    background: var(--accent-hover);
+  }
+  .secondary-btn {
+    background: var(--badge-bg);
+    color: var(--text-primary);
+  }
+  .secondary-btn:hover {
+    background: var(--bg-card-hover);
+  }
+</style>
+
+<script is:inline>
+  let currentQuoteData = null;
+
+  window.openPosterModal = function(data) {
+    currentQuoteData = data;
+    const modal = document.getElementById('poster-modal');
+    if (!modal) return;
+    modal.classList.add('active');
+    renderPosterCanvas(data);
+  };
+
+  function closePosterModal() {
+    const modal = document.getElementById('poster-modal');
+    if (modal) modal.classList.remove('active');
+  }
+
+  document.getElementById('close-poster-btn')?.addEventListener('click', closePosterModal);
+  document.getElementById('poster-modal')?.addEventListener('click', (e) => {
+    if (e.target.id === 'poster-modal') closePosterModal();
+  });
+
+  function renderPosterCanvas(data) {
+    const canvas = document.getElementById('poster-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const width = 800;
+    const height = 1000;
+    canvas.width = width;
+    canvas.height = height;
+
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+
+    // 背景绘制
+    if (isDark) {
+      ctx.fillStyle = '#09090b';
+      ctx.fillRect(0, 0, width, height);
+
+      const grad = ctx.createRadialGradient(width/2, 200, 50, width/2, 200, 400);
+      grad.addColorStop(0, 'rgba(56, 189, 248, 0.08)');
+      grad.addColorStop(1, 'rgba(9, 9, 11, 0)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, width, height);
+    } else {
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, width, height);
+
+      const grad = ctx.createRadialGradient(width/2, 200, 50, width/2, 200, 400);
+      grad.addColorStop(0, 'rgba(37, 99, 235, 0.05)');
+      grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, width, height);
+    }
+
+    // 绘制装饰外框
+    ctx.strokeStyle = isDark ? '#27272a' : '#e2e8f0';
+    ctx.lineWidth = 2;
+    roundRect(ctx, 40, 40, width - 80, height - 80, 24);
+    ctx.stroke();
+
+    // 绘制顶部大引号
+    ctx.font = '900 72px "Noto Serif SC", Georgia, serif';
+    ctx.fillStyle = isDark ? '#38bdf8' : '#2563eb';
+    ctx.fillText('“', 80, 140);
+
+    // 绘制金句正文
+    ctx.font = '500 34px -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif';
+    ctx.fillStyle = isDark ? '#f4f4f5' : '#0f172a';
+    
+    const maxTextWidth = width - 180;
+    const lineHeight = 56;
+    const startX = 90;
+    let startY = 220;
+
+    const cleanText = (data.content || '').replace(/[*#`_]/g, '');
+    const paragraphs = cleanText.split('\n');
+
+    for (let p = 0; p < paragraphs.length; p++) {
+      const paragraph = paragraphs[p].trim();
+      if (!paragraph) {
+        startY += lineHeight * 0.5;
+        continue;
+      }
+      const chars = paragraph.split('');
+      let line = '';
+      for (let n = 0; n < chars.length; n++) {
+        const testLine = line + chars[n];
+        const metrics = ctx.measureText(testLine);
+        if (metrics.width > maxTextWidth && n > 0) {
+          ctx.fillText(line, startX, startY);
+          line = chars[n];
+          startY += lineHeight;
+        } else {
+          line = testLine;
+        }
+      }
+      if (line) {
+        ctx.fillText(line, startX, startY);
+        startY += lineHeight;
+      }
+    }
+
+    // 绘制来源 (Source)
+    if (data.source) {
+      startY += 30;
+      ctx.font = 'italic 500 26px -apple-system, sans-serif';
+      ctx.fillStyle = isDark ? '#38bdf8' : '#2563eb';
+      ctx.fillText(`—— ${data.source}`, startX, startY);
+    }
+
+    // 绘制底部 Quotes 品牌与日期栏
+    const bottomY = height - 100;
+    
+    // 分割线
+    ctx.beginPath();
+    ctx.moveTo(80, bottomY - 40);
+    ctx.lineTo(width - 80, bottomY - 40);
+    ctx.strokeStyle = isDark ? '#27272a' : '#f1f5f9';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // 站点品牌
+    ctx.font = '800 26px -apple-system, sans-serif';
+    ctx.fillStyle = isDark ? '#f4f4f5' : '#0f172a';
+    ctx.fillText('Quotes', 80, bottomY + 5);
+
+    // Slogan 副标
+    ctx.font = '400 18px -apple-system, sans-serif';
+    ctx.fillStyle = isDark ? '#71717a' : '#94a3b8';
+    ctx.fillText('他山之石，可以攻玉。', 80, bottomY + 30);
+
+    // 日期
+    ctx.font = '500 20px -apple-system, sans-serif';
+    ctx.fillStyle = isDark ? '#a1a1aa' : '#64748b';
+    ctx.textAlign = 'right';
+    ctx.fillText(data.date || '', width - 80, bottomY + 15);
+    ctx.textAlign = 'left';
+  }
+
+  function roundRect(ctx, x, y, w, h, r) {
+    if (w < 2 * r) r = w / 2;
+    if (h < 2 * r) r = h / 2;
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  }
+
+  // 下载图片
+  document.getElementById('download-poster-btn')?.addEventListener('click', () => {
+    const canvas = document.getElementById('poster-canvas');
+    if (!canvas) return;
+    const link = document.createElement('a');
+    link.download = `quote-${Date.now()}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  });
+
+  // 复制图片
+  document.getElementById('copy-poster-btn')?.addEventListener('click', async () => {
+    const canvas = document.getElementById('poster-canvas');
+    if (!canvas) return;
+    try {
+      canvas.toBlob(async (blob) => {
+        if (!blob) return;
+        await navigator.clipboard.write([
+          new ClipboardItem({ 'image/png': blob })
+        ]);
+        alert('海报已复制到剪贴板！');
+      });
+    } catch (err) {
+      alert('浏览器暂不支持直接复制图片，请使用“保存高清海报”');
+    }
+  });
+</script>

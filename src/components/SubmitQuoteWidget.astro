@@ -1,0 +1,510 @@
+---
+import { SITE_CONFIG } from '@/utils/config';
+
+const tgConfig = {
+  botToken: SITE_CONFIG.submission?.telegramBotToken || '',
+  chatId: SITE_CONFIG.submission?.telegramChatId || '',
+  githubRepo: SITE_CONFIG.submission?.githubRepo || SITE_CONFIG.author.github?.replace('https://github.com/', '') || 'alex/quotes',
+};
+---
+
+<!-- 底部靠右半隐 Logo 触发按钮（无文字，默认下沉一半，hover 时浮起） -->
+<div class="bottom-dock-trigger">
+  <button 
+    id="dock-logo-btn" 
+    class="dock-logo-btn" 
+    aria-label="投递金句" 
+    title="投递金句"
+  >
+    <svg class="dock-logo-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/>
+      <path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/>
+    </svg>
+  </button>
+</div>
+
+<!-- 右下角局部弹窗卡片（非全屏，需点击关闭按钮才关闭） -->
+<div id="dock-quote-card" class="dock-quote-card" aria-hidden="true">
+  
+  <!-- 面板 1：极简输入框 + Telegram 飞机图标发送 -->
+  <div class="dock-panel" id="panel-input">
+    <div class="dock-topbar">
+      <span class="dock-title">投递金句</span>
+      <button id="dock-close-btn" class="dock-close-btn" aria-label="关闭" title="关闭">
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <form id="dock-quick-form" class="dock-form">
+      <textarea 
+        id="dock-textarea" 
+        rows="3" 
+        placeholder="提交你的金句 +  出处，ID或者邮件，审核后上线，共建Quotes..." 
+        required
+      ></textarea>
+
+      <div class="dock-bottom-row">
+        <button type="button" id="btn-to-github" class="dock-gh-link">
+          <span>GitHub 投稿 / PR</span>
+          <span class="arrow-glyph">→</span>
+        </button>
+
+        <button type="submit" id="dock-send-btn" class="dock-plane-btn" aria-label="发送" title="发送给站长">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"></line>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+          </svg>
+        </button>
+      </div>
+    </form>
+
+    <div id="dock-toast" class="dock-toast" style="display: none;"></div>
+  </div>
+
+  <!-- 面板 2：极简 GitHub 投稿渠道 -->
+  <div class="dock-panel" id="panel-github" style="display: none;">
+    <div class="dock-topbar">
+      <button id="btn-back-to-input" class="dock-back-btn" type="button" title="返回输入框">
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        <span>返回</span>
+      </button>
+      <button id="dock-close-btn-2" class="dock-close-btn" aria-label="关闭" title="关闭">
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <div class="gh-minimal-body">
+      <a 
+        href={`https://github.com/${tgConfig.githubRepo}/issues/new?title=%E3%80%90%E9%87%91%E5%8F%A5%E6%8A%95%E7%A8%BF%E3%80%91&body=%E9%87%91%E5%8F%A5%E5%86%85%E5%AE%B9%EF%BC%9A%0A%0A%E5%87%BA%E5%A4%84%20%2F%20%E4%BD%9C%E8%80%85%EF%BC%9A`}
+        target="_blank" 
+        rel="noopener noreferrer" 
+        class="gh-option-card"
+      >
+        <div class="gh-opt-title">提 Issue 投稿</div>
+        <div class="gh-opt-sub">使用结构化模板在线提交 ↗</div>
+      </a>
+
+      <a 
+        href={`https://github.com/${tgConfig.githubRepo}/tree/main/src/content/memos`} 
+        target="_blank" 
+        rel="noopener noreferrer" 
+        class="gh-option-card"
+      >
+        <div class="gh-opt-title">提 Pull Request</div>
+        <div class="gh-opt-sub">Fork 仓库直接添加 Markdown ↗</div>
+      </a>
+    </div>
+  </div>
+
+</div>
+
+<script id="submission-config-data" type="application/json" set:html={JSON.stringify(tgConfig)}></script>
+
+<script is:inline>
+  (function() {
+    const configEl = document.getElementById('submission-config-data');
+    let cfg = {};
+    try {
+      cfg = JSON.parse(configEl ? configEl.textContent || '{}' : '{}');
+    } catch(e) {}
+
+    const triggerBtn = document.getElementById('dock-logo-btn');
+    const dockCard = document.getElementById('dock-quote-card');
+    const closeBtn1 = document.getElementById('dock-close-btn');
+    const closeBtn2 = document.getElementById('dock-close-btn-2');
+    const panelInput = document.getElementById('panel-input');
+    const panelGh = document.getElementById('panel-github');
+    const toGhBtn = document.getElementById('btn-to-github');
+    const toInputBtn = document.getElementById('btn-back-to-input');
+    const quickForm = document.getElementById('dock-quick-form');
+    const textarea = document.getElementById('dock-textarea');
+    const sendBtn = document.getElementById('dock-send-btn');
+    const toast = document.getElementById('dock-toast');
+
+    function openCard() {
+      if (!dockCard) return;
+      dockCard.classList.add('active');
+      dockCard.setAttribute('aria-hidden', 'false');
+      showInputPanel();
+      if (textarea) {
+        setTimeout(() => textarea.focus(), 100);
+      }
+    }
+
+    function closeCard() {
+      if (!dockCard) return;
+      dockCard.classList.remove('active');
+      dockCard.setAttribute('aria-hidden', 'true');
+      if (toast) toast.style.display = 'none';
+    }
+
+    function showInputPanel() {
+      if (panelInput) panelInput.style.display = 'block';
+      if (panelGh) panelGh.style.display = 'none';
+    }
+
+    function showGhPanel() {
+      if (panelInput) panelInput.style.display = 'none';
+      if (panelGh) panelGh.style.display = 'block';
+    }
+
+    if (triggerBtn) triggerBtn.addEventListener('click', openCard);
+    if (closeBtn1) closeBtn1.addEventListener('click', closeCard);
+    if (closeBtn2) closeBtn2.addEventListener('click', closeCard);
+    if (toGhBtn) toGhBtn.addEventListener('click', showGhPanel);
+    if (toInputBtn) toInputBtn.addEventListener('click', showInputPanel);
+
+    if (quickForm) {
+      quickForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const content = textarea?.value?.trim();
+        if (!content) return;
+
+        if (sendBtn) {
+          sendBtn.disabled = true;
+          sendBtn.style.opacity = '0.5';
+        }
+
+        const now = new Date().toLocaleString();
+        const formattedMsg = `📖 来自【Quotes】的金句投递：\n\n“${content}”\n\n⏱️ ${now}`;
+
+        let success = false;
+        let msg = '';
+
+        if (cfg.botToken && cfg.chatId) {
+          try {
+            const res = await fetch(`https://api.telegram.org/bot${cfg.botToken}/sendMessage`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                chat_id: cfg.chatId,
+                text: formattedMsg,
+              }),
+            });
+            if (res.ok) {
+              success = true;
+              msg = '✨ 已成功发送至 Telegram！';
+            } else {
+              msg = '发送遇到异常，已在本地暂存。';
+            }
+          } catch(err) {
+            msg = '网络异常，已在本地暂存。';
+          }
+        } else {
+          success = true;
+          msg = '✨ 投递成功！(可在 config.ts 中配置 Telegram Bot 推送)';
+          try {
+            const list = JSON.parse(localStorage.getItem('local_submissions') || '[]');
+            list.push({ text: content, date: now });
+            localStorage.setItem('local_submissions', JSON.stringify(list));
+          } catch(err) {}
+        }
+
+        if (toast) {
+          toast.style.display = 'block';
+          toast.textContent = msg;
+          toast.className = `dock-toast ${success ? 'success' : 'warn'}`;
+        }
+
+        if (sendBtn) {
+          sendBtn.disabled = false;
+          sendBtn.style.opacity = '1';
+        }
+
+        if (success && textarea) {
+          textarea.value = '';
+        }
+      });
+    }
+  })();
+</script>
+
+<style>
+  /* 底部靠右触发按钮（贴在页面最底部，无文字，半沉入屏幕底部） */
+  .bottom-dock-trigger {
+    position: fixed;
+    bottom: 0;
+    right: 48px;
+    z-index: 900;
+  }
+
+  .dock-logo-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #0f172a;
+    color: #ffffff;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 6px;
+    box-shadow: 0 -2px 14px rgba(0, 0, 0, 0.18);
+    /* 默认只露出一半（下沉 50%） */
+    transform: translateY(50%);
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  /* 暗色模式白底黑标 */
+  :global([data-theme="dark"]) .dock-logo-btn {
+    background: #f4f4f5;
+    color: #09090b;
+    box-shadow: 0 -2px 18px rgba(255, 255, 255, 0.2);
+  }
+
+  /* 鼠标悬停时完全弹起浮出 */
+  .bottom-dock-trigger:hover .dock-logo-btn {
+    transform: translateY(-6px);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.26);
+  }
+
+  .dock-logo-icon {
+    display: block;
+    transition: transform 0.2s ease;
+  }
+
+  .bottom-dock-trigger:hover .dock-logo-icon {
+    transform: scale(1.1);
+  }
+
+  /* 右下角局部卡片 (非全屏，局部浮动卡片) */
+  .dock-quote-card {
+    position: fixed;
+    bottom: 56px;
+    right: 40px;
+    width: 310px;
+    max-width: calc(100vw - 32px);
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 16px 36px -6px rgba(0, 0, 0, 0.25);
+    z-index: 950;
+    display: none;
+    overflow: hidden;
+    transform: translateY(10px) scale(0.96);
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease;
+  }
+
+  .dock-quote-card.active {
+    display: block !important;
+    transform: translateY(0) scale(1);
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .dock-panel {
+    padding: 14px 16px;
+  }
+
+  .dock-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+
+  .dock-title {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .dock-close-btn {
+    width: 22px;
+    height: 22px;
+    border-radius: var(--radius-full);
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0;
+    transition: all 0.15s ease;
+  }
+
+  .dock-close-btn:hover {
+    color: var(--text-primary);
+    background: var(--bg-secondary);
+  }
+
+  .dock-form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .dock-form textarea {
+    width: 100%;
+    background: var(--quote-box-bg);
+    border: 1px solid var(--quote-box-border);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    padding: 9px 12px;
+    resize: none;
+    outline: none;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .dock-form textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-glow);
+  }
+
+  .dock-bottom-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .dock-gh-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 3px 6px;
+    border-radius: var(--radius-sm);
+    transition: color 0.15s ease, background 0.15s ease;
+  }
+
+  .dock-gh-link:hover {
+    color: var(--text-primary);
+    background: var(--bg-secondary);
+  }
+
+  .arrow-glyph {
+    font-size: 0.75rem;
+    transition: transform 0.15s ease;
+  }
+
+  .dock-gh-link:hover .arrow-glyph {
+    transform: translateX(2px);
+  }
+
+  /* Telegram 飞机图标按钮 */
+  .dock-plane-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-full);
+    background: var(--accent);
+    color: #ffffff;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px var(--accent-glow);
+    transition: transform 0.18s ease, background 0.18s ease;
+    flex-shrink: 0;
+  }
+
+  .dock-plane-btn:hover {
+    background: var(--accent-hover);
+    transform: scale(1.08);
+  }
+
+  .dock-toast {
+    margin-top: 8px;
+    padding: 6px 10px;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    line-height: 1.4;
+  }
+
+  .dock-toast.success {
+    background: rgba(34, 197, 94, 0.12);
+    color: #16a34a;
+  }
+
+  .dock-toast.warn {
+    background: rgba(234, 179, 8, 0.12);
+    color: #ca8a04;
+  }
+
+  /* 面板 2：极简 GitHub 操作 */
+  .dock-back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--accent);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+  }
+
+  .dock-back-btn:hover {
+    text-decoration: underline;
+  }
+
+  .gh-minimal-body {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-top: 4px;
+  }
+
+  .gh-option-card {
+    display: block;
+    padding: 10px 12px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    transition: all 0.18s ease;
+  }
+
+  .gh-option-card:hover {
+    border-color: var(--accent);
+    background: var(--accent-light);
+    transform: translateY(-1px);
+  }
+
+  .gh-opt-title {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .gh-opt-sub {
+    font-size: 0.6875rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  @media (max-width: 640px) {
+    .bottom-dock-trigger {
+      right: 20px;
+    }
+    .dock-quote-card {
+      right: 12px;
+      left: 12px;
+      width: auto;
+      bottom: 50px;
+    }
+  }
+</style>

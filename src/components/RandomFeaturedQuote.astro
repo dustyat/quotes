@@ -1,0 +1,627 @@
+---
+import { SITE_CONFIG } from '@/utils/config';
+import { formatFullDate, formatRelativeTime } from '@/utils/date';
+
+interface Props {
+  memos: any[];
+  isFirst?: boolean;
+}
+
+const { memos, isFirst = true } = Astro.props;
+
+// 预处理用于客户端随机轮播的数据
+const quotesData = memos.map((memo) => {
+  const memoId = memo.id.replace(/\.md$/, '');
+  const cleanBody = (memo.body || '').replace(/[*#`_]/g, '').trim();
+  const plainText = (memo.body || '').replace(/[\n#*`_]/g, ' ').trim();
+  
+  // 简易 Markdown 转 HTML（段落与加粗）
+  const html = (memo.body || '')
+    .trim()
+    .split(/\n\n+/)
+    .map((p: string) => `<p>${p.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}</p>`)
+    .join('');
+
+  return {
+    id: memoId,
+    html,
+    cleanBody,
+    plainText,
+    source: memo.data.source || '',
+    mood: memo.data.mood || '💡',
+    date: memo.data.date.toISOString(),
+    formattedDate: formatFullDate(memo.data.date),
+    relativeTime: formatRelativeTime(memo.data.date),
+    likes: memo.data.likes || 0,
+    url: `/memo/${memoId}`,
+    twitterUrl: `https://twitter.com/intent/tweet?text=${encodeURIComponent(`“${plainText.slice(0, 200)}”\n\n— via ${SITE_CONFIG.title}`)}`,
+  };
+});
+
+// 默认首篇渲染（保证无 JS 时的首屏速度与 SEO）
+const initial = quotesData[0] || null;
+---
+
+{initial && (
+  <div class:list={['timeline-row', 'random-featured-row', { 'is-first': isFirst }]} id="random-featured-row">
+    <!-- 左侧：文字“随机卡片” -->
+    <div class="timeline-time">
+      <span class="random-side-badge">随机卡片</span>
+    </div>
+
+    <!-- 中间：时间轴轨道与骰子心情节点 -->
+    <div class="timeline-track">
+      <div class="track-line"></div>
+      <div class="track-node" title="随机卡片">
+        <span class="node-mood random-dice-node" id="random-dice-trigger" title="点击也可随机换一条">🎲</span>
+      </div>
+    </div>
+
+    <!-- 右侧：金句卡片主体（与普通卡片完全一致的排列与尺寸） -->
+    <article class="quote-card random-quote-card">
+      <!-- 顶部右侧：换一换操作按钮 -->
+      <div class="card-header random-card-header">
+        <button id="shuffle-btn" class="shuffle-action-btn" title="换一条精选金句" aria-label="换一条精选金句">
+          <svg class="shuffle-spin-icon" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
+            <path d="M21 3v5h-5"/>
+            <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
+            <path d="M8 16H3v5"/>
+          </svg>
+          <span>换一换</span>
+        </button>
+      </div>
+
+      <!-- 正文内容区 -->
+      <div class="quote-main">
+        <div class="quote-content-wrapper" id="random-quote-wrapper">
+          <div class="quote-body" id="random-quote-body" set:html={initial.html}></div>
+
+          <div class="quote-source" id="random-quote-source" style={initial.source ? '' : 'display: none;'}>
+            <span class="source-dash">——</span>
+            <span class="source-text" id="random-source-text">{initial.source}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 底部操作栏 -->
+      <div class="card-footer">
+        <div class="footer-actions-left">
+          <!-- 点赞 -->
+          <button 
+            class="action-btn like-btn" 
+            id="random-like-btn"
+            data-id={initial.id} 
+            data-base-likes={initial.likes} 
+            title="心动 / 收藏"
+          >
+            <svg class="heart-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+            </svg>
+            <span class="like-count">{initial.likes}</span>
+          </button>
+
+          <!-- 生成海报 -->
+          <button 
+            class="action-btn poster-btn" 
+            id="random-poster-btn"
+            data-content={initial.cleanBody} 
+            data-source={initial.source} 
+            data-date={initial.formattedDate}
+            title="生成精美金句海报"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="18" height="18" x="3" y="3" rx="2" ry="2"></rect>
+              <circle cx="9" cy="9" r="2"></circle>
+              <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"></path>
+            </svg>
+            <span>海报</span>
+          </button>
+
+          <!-- 复制纯文本 -->
+          <button 
+            class="action-btn copy-btn" 
+            id="random-copy-btn"
+            data-text={initial.cleanBody} 
+            title="复制金句内容"
+          >
+            <svg class="copy-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
+              <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
+            </svg>
+            <span class="copy-text">复制</span>
+          </button>
+        </div>
+
+        <div class="footer-actions-right">
+          <!-- Twitter 分享 -->
+          <a 
+            id="random-twitter-link" 
+            href={initial.twitterUrl} 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            class="icon-link twitter-link" 
+            title="在 Twitter 分享"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+            </svg>
+          </a>
+
+          <!-- 独立详情页 -->
+          <a 
+            id="random-memo-link" 
+            href={initial.url} 
+            class="icon-link" 
+            title="查看独立详情页"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+              <polyline points="15 3 21 3 21 9"></polyline>
+              <line x1="10" y1="14" x2="21" y2="3"></line>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </article>
+  </div>
+)}
+
+<script id="random-quotes-data" type="application/json" set:html={JSON.stringify(quotesData)}></script>
+
+<!-- 客户端随机与换一换交互逻辑 -->
+<script is:inline>
+  (function() {
+    const dataEl = document.getElementById('random-quotes-data');
+    if (!dataEl) return;
+    let quotesData = [];
+    try {
+      quotesData = JSON.parse(dataEl.textContent || '[]');
+    } catch (e) {
+      return;
+    }
+    if (!quotesData || quotesData.length === 0) return;
+
+    let currentIndex = 0;
+    const wrapper = document.getElementById('random-quote-wrapper');
+    const bodyEl = document.getElementById('random-quote-body');
+    const sourceEl = document.getElementById('random-quote-source');
+    const sourceTextEl = document.getElementById('random-source-text');
+    const shuffleBtn = document.getElementById('shuffle-btn');
+    const diceNode = document.getElementById('random-dice-trigger');
+    const likeBtn = document.getElementById('random-like-btn');
+    const posterBtn = document.getElementById('random-poster-btn');
+    const copyBtn = document.getElementById('random-copy-btn');
+    const twitterLink = document.getElementById('random-twitter-link');
+    const memoLink = document.getElementById('random-memo-link');
+
+    function renderQuote(index, animated = true) {
+      const q = quotesData[index];
+      if (!q) return;
+      currentIndex = index;
+
+      const updateDom = () => {
+        if (bodyEl) bodyEl.innerHTML = q.html;
+        if (sourceEl && sourceTextEl) {
+          if (q.source) {
+            sourceTextEl.textContent = q.source;
+            sourceEl.style.display = '';
+          } else {
+            sourceEl.style.display = 'none';
+          }
+        }
+
+        // 更新点赞按钮状态
+        if (likeBtn) {
+          likeBtn.setAttribute('data-id', q.id);
+          likeBtn.setAttribute('data-base-likes', String(q.likes));
+          const isLiked = localStorage.getItem(`liked_${q.id}`) === 'true';
+          const countSpan = likeBtn.querySelector('.like-count');
+          if (isLiked) {
+            likeBtn.classList.add('liked');
+            if (countSpan) countSpan.textContent = String(q.likes + 1);
+          } else {
+            likeBtn.classList.remove('liked');
+            if (countSpan) countSpan.textContent = String(q.likes);
+          }
+        }
+
+        // 更新海报、复制与外链数据
+        if (posterBtn) {
+          posterBtn.setAttribute('data-content', q.cleanBody);
+          posterBtn.setAttribute('data-source', q.source);
+          posterBtn.setAttribute('data-date', q.formattedDate);
+        }
+
+        if (copyBtn) {
+          copyBtn.setAttribute('data-text', q.cleanBody);
+        }
+
+        if (twitterLink) {
+          twitterLink.href = q.twitterUrl;
+        }
+
+        if (memoLink) {
+          memoLink.href = q.url;
+        }
+      };
+
+      if (animated && wrapper) {
+        wrapper.classList.add('is-switching');
+        setTimeout(() => {
+          updateDom();
+          wrapper.classList.remove('is-switching');
+        }, 180);
+      } else {
+        updateDom();
+      }
+    }
+
+    function doShuffle() {
+      // 图标与骰子旋转微动效
+      if (shuffleBtn) {
+        const spinIcon = shuffleBtn.querySelector('.shuffle-spin-icon');
+        if (spinIcon) {
+          spinIcon.classList.add('spin-once');
+          setTimeout(() => spinIcon.classList.remove('spin-once'), 600);
+        }
+      }
+      if (diceNode) {
+        diceNode.classList.add('dice-roll');
+        setTimeout(() => diceNode.classList.remove('dice-roll'), 600);
+      }
+
+      // 抽取不同于当前的一篇
+      let nextIndex;
+      if (quotesData.length > 1) {
+        do {
+          nextIndex = Math.floor(Math.random() * quotesData.length);
+        } while (nextIndex === currentIndex);
+      } else {
+        nextIndex = 0;
+      }
+
+      renderQuote(nextIndex, true);
+    }
+
+    // 页面初次加载时随机挑一条
+    const initialRandomIndex = Math.floor(Math.random() * quotesData.length);
+    renderQuote(initialRandomIndex, false);
+
+    // 点击“换一换”按钮或点击左侧骰子
+    if (shuffleBtn) shuffleBtn.addEventListener('click', doShuffle);
+    if (diceNode) diceNode.addEventListener('click', doShuffle);
+  })();
+</script>
+
+<style>
+  /* 继承与对齐时间轴布局 */
+  .timeline-row {
+    display: flex;
+    align-items: stretch;
+    position: relative;
+    margin-bottom: 28px;
+  }
+
+  /* 左侧标签：“随机卡片” */
+  .timeline-time {
+    width: 76px;
+    margin-top: 20px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .random-side-badge {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: #8b5cf6;
+    background: rgba(139, 92, 246, 0.08);
+    padding: 3px 6px;
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(139, 92, 246, 0.2);
+    white-space: nowrap;
+    letter-spacing: 0.02em;
+    display: inline-block;
+  }
+
+  [data-theme="dark"] .random-side-badge {
+    color: #c4b5fd;
+    background: rgba(167, 139, 250, 0.12);
+    border-color: rgba(167, 139, 250, 0.25);
+  }
+
+  /* 中间时间轴轨道 */
+  .timeline-track {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 24px;
+    margin: 0 24px 0 12px;
+    flex-shrink: 0;
+    position: relative;
+  }
+
+  .track-line {
+    position: absolute;
+    top: 0;
+    bottom: -28px;
+    width: 2px;
+    background: var(--border-color);
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1;
+  }
+
+  .timeline-row.is-first .track-line {
+    top: 22px;
+  }
+
+  .track-node {
+    position: relative;
+    z-index: 2;
+    margin-top: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-primary);
+    padding: 2px;
+  }
+
+  .node-mood {
+    font-size: 1.25rem;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+  }
+
+  .node-mood:hover {
+    transform: scale(1.3) rotate(15deg);
+  }
+
+  .dice-roll {
+    animation: diceShake 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes diceShake {
+    0% { transform: scale(1) rotate(0deg); }
+    25% { transform: scale(1.3) rotate(-25deg); }
+    50% { transform: scale(1.3) rotate(25deg); }
+    75% { transform: scale(1.2) rotate(-10deg); }
+    100% { transform: scale(1) rotate(0deg); }
+  }
+
+  /* 右侧卡片主体 */
+  .quote-card {
+    flex: 1;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 24px 26px;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .quote-card:hover {
+    border-color: var(--accent);
+    box-shadow: var(--shadow-md);
+    background: var(--bg-card-hover);
+    transform: translateY(-2px);
+  }
+
+  /* 顶部换一换行 */
+  .random-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-bottom: 14px;
+  }
+
+  .shuffle-action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .shuffle-action-btn:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: var(--accent-light);
+  }
+
+  .shuffle-spin-icon {
+    transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .spin-once {
+    transform: rotate(360deg);
+  }
+
+  /* 正文区 */
+  .quote-main {
+    background: var(--quote-box-bg);
+    border: 1px solid var(--quote-box-border);
+    border-radius: var(--radius-md);
+    padding: 26px 28px;
+    margin-bottom: 22px;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  }
+
+  .timeline-row:hover .quote-main {
+    border-color: var(--accent);
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.04);
+  }
+
+  .quote-content-wrapper {
+    transition: opacity 0.18s ease, transform 0.18s ease;
+    will-change: opacity, transform;
+  }
+
+  .quote-content-wrapper.is-switching {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  .quote-body {
+    font-size: 1.125rem;
+    line-height: 1.85;
+    color: var(--quote-text-primary);
+    word-break: break-word;
+    font-weight: 400;
+  }
+
+  .quote-body :global(p) {
+    margin: 0 0 12px 0;
+  }
+
+  .quote-body :global(p:last-child) {
+    margin-bottom: 0;
+  }
+
+  .quote-body :global(strong) {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .quote-source {
+    margin-top: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+    font-family: var(--font-quote);
+    font-size: 0.9375rem;
+    color: var(--quote-text-secondary);
+    font-style: italic;
+  }
+
+  .source-dash {
+    opacity: 0.6;
+  }
+
+  /* 底部操作栏 */
+  .card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 2px;
+  }
+
+  .footer-actions-left,
+  .footer-actions-right {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--text-muted);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    padding: 6px 12px;
+    border-radius: var(--radius-full);
+    background: var(--bg-secondary);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .action-btn:hover {
+    background: var(--border-color);
+    color: var(--text-primary);
+  }
+
+  .like-btn:hover {
+    color: var(--like-color);
+    background: var(--like-bg);
+  }
+  .like-btn.liked {
+    color: var(--like-color);
+  }
+  .like-btn.liked .heart-icon {
+    fill: currentColor;
+  }
+
+  .poster-btn:hover,
+  .copy-btn:hover {
+    color: var(--accent);
+    background: var(--accent-light);
+    border-color: var(--accent-glow);
+  }
+
+  .icon-link {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    background: var(--bg-secondary);
+    transition: all 0.15s ease;
+  }
+
+  .icon-link:hover {
+    background: var(--border-color);
+    color: var(--text-primary);
+  }
+
+  .twitter-link:hover {
+    color: #1d9bf0;
+    background: rgba(29, 155, 240, 0.12);
+  }
+
+  @media (max-width: 640px) {
+    .timeline-row {
+      margin-bottom: 20px;
+    }
+    .timeline-time {
+      width: 66px;
+      margin-top: 17px;
+    }
+    .random-side-badge {
+      font-size: 0.6875rem;
+      padding: 2px 4px;
+    }
+    .timeline-track {
+      width: 18px;
+      margin: 0 14px 0 6px;
+    }
+    .node-mood {
+      font-size: 1rem;
+    }
+    .quote-card {
+      padding: 18px 18px;
+    }
+    .quote-main {
+      padding: 18px 18px;
+      margin-bottom: 16px;
+    }
+    .quote-body {
+      font-size: 1.0625rem;
+      line-height: 1.7;
+    }
+    .action-btn {
+      padding: 4px 8px;
+      font-size: 0.75rem;
+    }
+  }
+</style>

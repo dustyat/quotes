@@ -1,0 +1,72 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import QuoteCard from '@/components/QuoteCard.astro';
+
+export async function getStaticPaths() {
+  const allMemos = await getCollection('memos');
+  const uniqueTags = [...new Set(allMemos.flatMap((memo) => memo.data.tags || []))];
+
+  return uniqueTags.map((tag) => {
+    const filteredMemos = allMemos.filter((memo) => memo.data.tags?.includes(tag))
+      .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+    return {
+      params: { tag },
+      props: { memos: filteredMemos },
+    };
+  });
+}
+
+const { tag } = Astro.params;
+const { memos } = Astro.props;
+---
+
+<BaseLayout 
+  title={`#${tag} 话题下的金句`} 
+  description={`关于 #${tag} 的所有金句与思考。`}
+>
+  <div class="tag-page-header">
+    <div class="tag-badge-large">#{tag}</div>
+    <p class="tag-count-text">共收录 {memos.length} 条精选金句</p>
+  </div>
+
+  <section class="quotes-stream">
+    {memos.map(async (memo, index) => {
+      const { Content } = await render(memo);
+      const memoId = memo.id.replace(/\.md$/, '');
+      return (
+        <QuoteCard 
+          id={memoId} 
+          body={memo.body || ''} 
+          data={memo.data}
+          isFirst={index === 0}
+          isLast={index === memos.length - 1}
+        >
+          <Content />
+        </QuoteCard>
+      );
+    })}
+  </section>
+</BaseLayout>
+
+<style>
+  .tag-page-header {
+    padding: 32px 0 24px 0;
+    margin-bottom: 12px;
+  }
+  .tag-badge-large {
+    font-size: 1.875rem;
+    font-weight: 800;
+    color: var(--accent);
+    letter-spacing: -0.02em;
+  }
+  .tag-count-text {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+  .quotes-stream {
+    display: flex;
+    flex-direction: column;
+  }
+</style>

@@ -1,0 +1,69 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import TagBadge from '@/components/TagBadge.astro';
+
+const allMemos = await getCollection('memos');
+
+// 统计所有标签
+const tagCounts = allMemos.reduce((acc, memo) => {
+  (memo.data.tags || []).forEach(tag => {
+    acc[tag] = (acc[tag] || 0) + 1;
+  });
+  return acc;
+}, {} as Record<string, number>);
+
+const sortedTags = Object.entries(tagCounts).sort((a, b) => b[1] - a[1]);
+---
+
+<BaseLayout 
+  title="全部话题分类" 
+  description="浏览所有金句与思考的话题分类。"
+>
+  <div class="tags-page-container">
+    <div class="tags-header">
+      <h1 class="tags-title">全部话题分类</h1>
+      <p class="tags-subtitle">共收录 {sortedTags.length} 个思想与观点话题</p>
+    </div>
+
+    <div class="tags-card-wrapper">
+      <div class="tags-cloud">
+        {sortedTags.map(([tag, count]) => (
+          <TagBadge tag={tag} count={count} />
+        ))}
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .tags-page-container {
+    padding: 32px 0 24px 0;
+  }
+  .tags-header {
+    margin-bottom: 24px;
+  }
+  .tags-title {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+  }
+  .tags-subtitle {
+    font-size: 0.9375rem;
+    color: var(--text-muted);
+    margin-top: 6px;
+  }
+  .tags-card-wrapper {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 28px;
+    box-shadow: var(--shadow-sm);
+  }
+  .tags-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+</style>

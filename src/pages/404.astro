@@ -1,0 +1,54 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="页面未找到" pageHeaderTitle="404">
+  <div class="not-found-container">
+    <div class="error-code">404</div>
+    <h2 class="error-title">该金句或页面已飘入虚空</h2>
+    <p class="error-desc">你访问的页面不存在或已被移除。</p>
+    <a href="/" class="back-home-btn">返回主页时间线</a>
+  </div>
+</BaseLayout>
+
+<style>
+  .not-found-container {
+    padding: 80px 24px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .error-code {
+    font-size: 5rem;
+    font-weight: 900;
+    color: var(--accent);
+    line-height: 1;
+  }
+  .error-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-top: 16px;
+    color: var(--text-primary);
+  }
+  .error-desc {
+    font-size: 0.9375rem;
+    color: var(--text-muted);
+    margin-top: 8px;
+    margin-bottom: 24px;
+  }
+  .back-home-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 24px;
+    background: var(--accent);
+    color: #ffffff;
+    border-radius: var(--radius-full);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    transition: background 0.15s ease;
+  }
+  .back-home-btn:hover {
+    background: var(--accent-hover);
+  }
+</style>

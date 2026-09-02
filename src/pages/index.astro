@@ -1,0 +1,109 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import QuoteCard from '@/components/QuoteCard.astro';
+import RandomFeaturedQuote from '@/components/RandomFeaturedQuote.astro';
+import { SITE_CONFIG } from '@/utils/config';
+
+const allMemos = await getCollection('memos');
+
+// 下方时间轴恢复自然时间倒序排列
+const sortedMemos = allMemos.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+---
+
+<BaseLayout title={SITE_CONFIG.title} description={SITE_CONFIG.description}>
+  <!-- 顶部极简介绍 -->
+  <section class="feed-intro">
+    <div class="intro-headline">
+      <div class="headline-brand">
+        <h1 class="headline-title">{SITE_CONFIG.title}</h1>
+      </div>
+      <p class="headline-slogan">{SITE_CONFIG.slogan}</p>
+    </div>
+  </section>
+
+  <!-- 金句时间轴流 -->
+  <section class="quotes-stream">
+    <!-- 顶部置顶：随机卡片（统一样式与时间轴对齐） -->
+    {allMemos.length > 0 && <RandomFeaturedQuote memos={allMemos} isFirst={true} />}
+
+    {sortedMemos.length === 0 ? (
+      <div class="empty-state">
+        <p>暂无金句，请通过 <code>npm run new</code> 发布第一条！</p>
+      </div>
+    ) : (
+      sortedMemos.map(async (memo, index) => {
+        const { Content } = await render(memo);
+        const memoId = memo.id.replace(/\.md$/, '');
+        return (
+          <QuoteCard 
+            id={memoId} 
+            body={memo.body || ''} 
+            data={memo.data}
+            isFirst={false}
+            isLast={index === sortedMemos.length - 1}
+          >
+            <Content />
+          </QuoteCard>
+        );
+      })
+    )}
+  </section>
+</BaseLayout>
+
+<style>
+  .feed-intro {
+    padding: 32px 0 24px 0;
+    margin-bottom: 12px;
+  }
+  .intro-headline {
+    margin-bottom: 16px;
+  }
+  .headline-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .headline-title {
+    font-size: 1.875rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+  .headline-slogan {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    margin-top: 8px;
+    font-style: italic;
+  }
+
+  .quotes-stream {
+    display: flex;
+    flex-direction: column;
+    padding-top: 8px;
+  }
+
+  .empty-state {
+    padding: 80px 24px;
+    text-align: center;
+    color: var(--text-muted);
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+  }
+  .empty-state code {
+    background: var(--badge-bg);
+    padding: 4px 8px;
+    border-radius: 4px;
+  }
+
+  @media (max-width: 640px) {
+    .feed-intro {
+      padding: 20px 0 16px 0;
+    }
+    .headline-title {
+      font-size: 1.5rem;
+    }
+  }
+</style>

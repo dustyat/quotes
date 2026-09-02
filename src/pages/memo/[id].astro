@@ -1,0 +1,67 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import QuoteCard from '@/components/QuoteCard.astro';
+import { toIsoString } from '@/utils/date';
+
+export async function getStaticPaths() {
+  const memos = await getCollection('memos');
+  return memos.map((memo) => {
+    const memoId = memo.id.replace(/\.md$/, '');
+    return {
+      params: { id: memoId },
+      props: { memo, memoId },
+    };
+  });
+}
+
+const { memo, memoId } = Astro.props;
+const { Content } = await render(memo);
+
+const plainText = (memo.body || '').replace(/[\n#*`_]/g, ' ').trim().slice(0, 120);
+---
+
+<BaseLayout
+  title={`“${plainText}...”`}
+  description={memo.body || ''}
+  type="quote"
+  datePublished={toIsoString(memo.data.date)}
+  tags={memo.data.tags}
+>
+  <div class="memo-detail-wrapper">
+    <div class="back-nav-bar">
+      <a href="/" class="back-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        <span>返回全部语录</span>
+      </a>
+    </div>
+
+    <QuoteCard id={memoId} body={memo.body || ''} data={memo.data}>
+      <Content />
+    </QuoteCard>
+  </div>
+</BaseLayout>
+
+<style>
+  .memo-detail-wrapper {
+    padding: 32px 0 24px 0;
+  }
+  .back-nav-bar {
+    margin-bottom: 16px;
+  }
+  .back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    transition: color 0.15s ease;
+  }
+  .back-btn:hover {
+    color: var(--accent);
+  }
+</style>

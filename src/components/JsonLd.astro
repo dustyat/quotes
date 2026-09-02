@@ -1,0 +1,58 @@
+---
+import { SITE_CONFIG } from '@/utils/config';
+
+interface Props {
+  type?: 'website' | 'quote';
+  title?: string;
+  description?: string;
+  datePublished?: string;
+  tags?: string[];
+  url?: string;
+}
+
+const {
+  type = 'website',
+  title = SITE_CONFIG.title,
+  description = SITE_CONFIG.description,
+  datePublished,
+  tags = [],
+  url = SITE_CONFIG.siteUrl
+} = Astro.props;
+
+let schema: Record<string, any> = {};
+
+if (type === 'quote') {
+  schema = {
+    '@context': 'https://schema.org',
+    '@type': 'SocialMediaPosting',
+    'headline': title,
+    'articleBody': description,
+    'datePublished': datePublished,
+    'author': {
+      '@type': 'Person',
+      'name': SITE_CONFIG.author.name,
+      'url': SITE_CONFIG.author.link || SITE_CONFIG.siteUrl
+    },
+    'keywords': tags.join(', '),
+    'mainEntityOfPage': url
+  };
+} else {
+  schema = {
+    '@context': 'https://schema.org',
+    '@type': 'ProfilePage',
+    'mainEntity': {
+      '@type': 'Person',
+      'name': SITE_CONFIG.author.name,
+      'alternateName': SITE_CONFIG.author.handle,
+      'description': SITE_CONFIG.author.bio,
+      'image': new URL(SITE_CONFIG.author.avatar, SITE_CONFIG.siteUrl).toString(),
+      'sameAs': [
+        SITE_CONFIG.author.twitter,
+        SITE_CONFIG.author.github
+      ].filter(Boolean)
+    }
+  };
+}
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(schema)} />

@@ -1,0 +1,144 @@
+---
+import { SITE_CONFIG } from '@/utils/config';
+import Header from '@/components/Header.astro';
+import JsonLd from '@/components/JsonLd.astro';
+import QuotePosterModal from '@/components/QuotePosterModal.astro';
+import SearchModal from '@/components/SearchModal.astro';
+import SubmitQuoteWidget from '@/components/SubmitQuoteWidget.astro';
+import '@/styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+  type?: 'website' | 'quote';
+  datePublished?: string;
+  tags?: string[];
+}
+
+const {
+  title = SITE_CONFIG.title,
+  description = SITE_CONFIG.description,
+  type = 'website',
+  datePublished,
+  tags = [],
+} = Astro.props;
+
+const canonicalUrl = new URL(Astro.url.pathname, Astro.site || SITE_CONFIG.siteUrl);
+const pageTitle = title === SITE_CONFIG.title ? `${SITE_CONFIG.title} · ${SITE_CONFIG.slogan.replace(/[\“\”]/g, '')}` : `${title} · ${SITE_CONFIG.title}`;
+---
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="canonical" href={canonicalUrl} />
+  
+  <title>{pageTitle}</title>
+  <meta name="description" content={description} />
+
+  <!-- OpenGraph / Facebook -->
+  <meta property="og:type" content={type === 'quote' ? 'article' : 'website'} />
+  <meta property="og:url" content={canonicalUrl} />
+  <meta property="og:title" content={pageTitle} />
+  <meta property="og:description" content={description} />
+  <meta property="og:image" content={new URL('/avatar.svg', Astro.site || SITE_CONFIG.siteUrl)} />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content={pageTitle} />
+  <meta name="twitter:description" content={description} />
+
+  <!-- RSS & LLM 规范入口 -->
+  <link rel="alternate" type="application/rss+xml" title={SITE_CONFIG.title} href="/rss.xml" />
+  <link rel="alternate" type="text/plain" title="LLMs Semantic Index" href="/llms.txt" />
+
+  <!-- JSON-LD 结构化数据 -->
+  <JsonLd 
+    type={type} 
+    title={pageTitle} 
+    description={description} 
+    datePublished={datePublished}
+    tags={tags}
+    url={canonicalUrl.toString()}
+  />
+
+  <!-- 防止暗黑模式闪烁 -->
+  <script is:inline>
+    const theme = (() => {
+      if (typeof localStorage !== 'undefined' && localStorage.getItem('theme')) {
+        return localStorage.getItem('theme');
+      }
+      if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        return 'dark';
+      }
+      return 'light';
+    })();
+    document.documentElement.setAttribute('data-theme', theme);
+  </script>
+</head>
+<body>
+  <!-- 居中统一顶部导航 -->
+  <Header />
+
+  <!-- 居中主内容区 -->
+  <main class="single-column-layout">
+    <slot />
+  </main>
+
+  <!-- 极简底部版权 -->
+  <footer class="centered-footer">
+    <p class="footer-slogan">{SITE_CONFIG.slogan}</p>
+    <div class="footer-meta">
+      <span>© 2026 {SITE_CONFIG.title}</span>
+      <span>·</span>
+      <a href="/llms.txt" target="_blank">llms.txt</a>
+      <span>·</span>
+      <a href="/rss.xml" target="_blank">RSS</a>
+      <span>·</span>
+      <a href="/api/memos.json" target="_blank">API</a>
+    </div>
+  </footer>
+
+  <QuotePosterModal />
+  <SearchModal />
+  <SubmitQuoteWidget />
+</body>
+</html>
+
+<style>
+  .centered-footer {
+    max-width: 760px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 32px 20px 48px 20px;
+    text-align: center;
+    border-top: 1px solid var(--border-color);
+    box-sizing: border-box;
+  }
+  .footer-slogan {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    font-style: italic;
+    margin-bottom: 8px;
+  }
+  .footer-meta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+  .footer-meta a:hover {
+    color: var(--accent);
+    text-decoration: underline;
+  }
+
+  @media (max-width: 640px) {
+    .centered-footer {
+      padding: 24px 14px 40px 14px;
+    }
+  }
+</style>

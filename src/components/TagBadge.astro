@@ -1,0 +1,53 @@
+---
+interface Props {
+  tag: string;
+  count?: number;
+  isActive?: boolean;
+}
+
+const { tag, count, isActive = false } = Astro.props;
+---
+
+<a 
+  href={`/tags/${encodeURIComponent(tag)}`}
+  class:list={['tag-badge', { active: isActive }]}
+>
+  <span class="tag-hash">#</span>
+  <span class="tag-name">{tag}</span>
+  {count !== undefined && <span class="tag-count">{count}</span>}
+</a>
+
+<style>
+  .tag-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: var(--radius-full);
+    background: var(--badge-bg);
+    color: var(--text-secondary);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    transition: all 0.15s ease;
+    border: 1px solid transparent;
+    text-decoration: none;
+  }
+  .tag-badge:hover {
+    background: var(--accent-light);
+    color: var(--accent);
+    border-color: var(--accent-glow);
+  }
+  .tag-badge.active {
+    background: var(--accent);
+    color: #ffffff;
+  }
+  .tag-hash {
+    opacity: 0.6;
+    font-weight: 600;
+  }
+  .tag-count {
+    font-size: 0.75rem;
+    opacity: 0.7;
+    margin-left: 2px;
+  }
+</style>

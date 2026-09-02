@@ -1,0 +1,196 @@
+---
+import { SITE_CONFIG } from '@/utils/config';
+import ThemeToggle from './ThemeToggle.astro';
+
+const currentPath = Astro.url.pathname;
+---
+
+<aside class="left-sidebar">
+  <div class="sidebar-sticky-wrapper">
+    <!-- Brand Logo -->
+    <a href="/" class="brand-logo" aria-label="返回首页">
+      <div class="logo-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/>
+          <path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/>
+        </svg>
+      </div>
+      <div class="logo-text-group">
+        <span class="logo-text">{SITE_CONFIG.title}</span>
+        <span class="logo-slogan">智者语录</span>
+      </div>
+    </a>
+
+    <!-- Nav Links -->
+    <nav class="sidebar-nav">
+      <a href="/" class:list={['nav-item', { active: currentPath === '/' }]}>
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+        </svg>
+        <span>语录时间轴</span>
+      </a>
+
+      <a href="/tags" class:list={['nav-item', { active: currentPath.startsWith('/tags') }]}>
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path>
+          <path d="M7 7h.01"></path>
+        </svg>
+        <span>话题分类</span>
+      </a>
+
+      <a href="/about" class:list={['nav-item', { active: currentPath === '/about' }]}>
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="16" x2="12" y2="12"></line>
+          <line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>
+        <span>关于本站</span>
+      </a>
+
+      <a href="/rss.xml" target="_blank" class="nav-item" title="RSS 订阅">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 11a9 9 0 0 1 9 9"></path>
+          <path d="M4 4a16 16 0 0 1 16 16"></path>
+          <circle cx="5" cy="19" r="1"></circle>
+        </svg>
+        <span>RSS 订阅</span>
+      </a>
+
+      <a href="/llms.txt" target="_blank" class="nav-item" title="AI 索引">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 8V4H8"></path>
+          <rect width="16" height="12" x="4" y="8" rx="2"></rect>
+          <path d="M2 14h2"></path>
+          <path d="M20 14h2"></path>
+          <path d="M15 13v2"></path>
+          <path d="M9 13v2"></path>
+        </svg>
+        <span>AI / LLMs</span>
+      </a>
+    </nav>
+
+    <!-- 主题切换 -->
+    <div class="sidebar-tools">
+      <ThemeToggle />
+    </div>
+
+    <!-- 底部站点信条小卡片 -->
+    <div class="sidebar-quote-box">
+      <p class="slogan-text">{SITE_CONFIG.slogan}</p>
+      <span class="slogan-tag">Quotes Curation</span>
+    </div>
+  </div>
+</aside>
+
+<style>
+  .left-sidebar {
+    padding: 24px 0;
+  }
+  .sidebar-sticky-wrapper {
+    position: sticky;
+    top: 24px;
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 48px);
+  }
+
+  .brand-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 12px;
+    border-radius: var(--radius-full);
+    margin-bottom: 24px;
+    transition: background 0.15s ease;
+  }
+  .brand-logo:hover {
+    background: var(--bg-card-hover);
+  }
+  .logo-icon {
+    width: 38px;
+    height: 38px;
+    background: #0f172a;
+    color: #ffffff;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s ease;
+  }
+
+  [data-theme="dark"] .logo-icon {
+    background: #f4f4f5;
+    color: #09090b;
+  }
+  .logo-text-group {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+  }
+  .logo-text {
+    font-size: 1.125rem;
+    font-weight: 800;
+    color: var(--text-primary);
+  }
+  .logo-slogan {
+    font-size: 0.6875rem;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  .sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 16px;
+    border-radius: var(--radius-full);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    transition: all 0.15s ease;
+  }
+  .nav-item:hover {
+    background: var(--bg-card-hover);
+    color: var(--text-primary);
+  }
+  .nav-item.active {
+    color: var(--accent);
+    font-weight: 700;
+    background: var(--accent-light);
+  }
+
+  .sidebar-tools {
+    padding: 8px 16px;
+  }
+
+  .sidebar-quote-box {
+    margin-top: auto;
+    padding: 14px 16px;
+    border-radius: var(--radius-md);
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+  }
+  .slogan-text {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    font-style: italic;
+  }
+  .slogan-tag {
+    display: inline-block;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    color: var(--accent);
+    margin-top: 6px;
+    text-transform: uppercase;
+  }
+</style>

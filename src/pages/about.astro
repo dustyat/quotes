@@ -1,0 +1,202 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { SITE_CONFIG } from '@/utils/config';
+---
+
+<BaseLayout 
+  title="关于本站" 
+  description={SITE_CONFIG.description}
+  pageHeaderTitle="关于本站"
+>
+  <div class="about-page">
+    <div class="about-hero">
+      <h2 class="about-title">{SITE_CONFIG.title}</h2>
+      <p class="about-slogan">{SITE_CONFIG.slogan}</p>
+      <p class="about-desc">{SITE_CONFIG.description}</p>
+    </div>
+
+    <div class="about-section">
+      <h3 class="section-title">空间初衷</h3>
+      <p class="section-text">
+        在这个注意力碎片化、算法推荐泛滥的时代，我们每天被数以万计的信息噪音淹没。<strong>Quotes</strong> 旨在建立一个纯粹、安静、经得起时间检验的智者语录时间轴。
+      </p>
+      <p class="section-text">
+        这里不生产冗长的长篇大论，只沉淀那些来自先贤、智者、经典书籍与前沿思想中的璀璨字句、思维模型与顿悟时刻。
+      </p>
+    </div>
+
+    <div class="about-section">
+      <h3 class="section-title">技术与开放生态</h3>
+      <div class="tech-features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">⚡</div>
+          <div class="feature-content">
+            <h4 class="feature-title">纯静态极速生成</h4>
+            <p class="feature-desc">基于最新 Astro 架构，0 客户端冗余 JS 运行时，秒级加载，部署在 Cloudflare 全球 CDN。</p>
+          </div>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🤖</div>
+          <div class="feature-content">
+            <h4 class="feature-title">2026 AI 友好开放</h4>
+            <p class="feature-desc">遵循 <code>/llms.txt</code> 与结构化数据规范，为现代 LLM 及 AI 搜索引擎提供干净的语料与语义索引。</p>
+          </div>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🖼️</div>
+          <div class="feature-content">
+            <h4 class="feature-title">一键海报生成</h4>
+            <p class="feature-desc">纯前端 Canvas 引擎，随时将任意金句转化为高颜值分享图片。</p>
+          </div>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🐦</div>
+          <div class="feature-content">
+            <h4 class="feature-title">Twitter (X) 自动同步</h4>
+            <p class="feature-desc">通过 GitHub Actions 流水线，每次更新自动调用 Twitter 官方 API 免费分发。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="about-section">
+      <h3 class="section-title">订阅与开放接口</h3>
+      <div class="open-links-grid">
+        <a href="/rss.xml" target="_blank" class="open-link-card">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 11a9 9 0 0 1 9 9"></path><path d="M4 4a16 16 0 0 1 16 16"></path><circle cx="5" cy="19" r="1"></circle></svg>
+          <div>
+            <div class="link-title">RSS 2.0 订阅</div>
+            <div class="link-sub">在阅读器中同步更新</div>
+          </div>
+        </a>
+
+        <a href="/llms.txt" target="_blank" class="open-link-card">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8V4H8"></path><rect width="16" height="12" x="4" y="8" rx="2"></rect><path d="M2 14h2"></path><path d="M20 14h2"></path></svg>
+          <div>
+            <div class="link-title">AI / llms.txt</div>
+            <div class="link-sub">LLM 语义索引语料</div>
+          </div>
+        </a>
+
+        <a href="/api/memos.json" target="_blank" class="open-link-card">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+          <div>
+            <div class="link-title">JSON 开放接口</div>
+            <div class="link-sub">纯静态 REST 数据端点</div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .about-page {
+    padding: 24px;
+  }
+  .about-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border-color);
+  }
+  .about-title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--text-primary);
+  }
+  .about-slogan {
+    font-size: 1rem;
+    color: var(--accent);
+    font-weight: 600;
+    margin-top: 4px;
+    font-style: italic;
+  }
+  .about-desc {
+    font-size: 0.9375rem;
+    color: var(--text-secondary);
+    max-width: 480px;
+    margin-top: 10px;
+    line-height: 1.6;
+  }
+
+  .about-section {
+    padding-top: 24px;
+  }
+  .section-title {
+    font-size: 1.0625rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+  }
+  .section-text {
+    font-size: 0.9375rem;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin-bottom: 12px;
+  }
+
+  .tech-features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 12px;
+    margin-top: 14px;
+  }
+  .feature-card {
+    display: flex;
+    gap: 12px;
+    padding: 14px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+  }
+  .feature-icon {
+    font-size: 1.25rem;
+  }
+  .feature-title {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+  }
+  .feature-desc {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+
+  .open-links-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
+    margin-top: 14px;
+  }
+  .open-link-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    transition: all 0.15s ease;
+  }
+  .open-link-card:hover {
+    border-color: var(--accent);
+    background: var(--bg-card-hover);
+  }
+  .link-title {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+  .link-sub {
+    font-size: 0.6875rem;
+    color: var(--text-muted);
+  }
+</style>
