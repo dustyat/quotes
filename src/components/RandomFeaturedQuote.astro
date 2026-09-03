@@ -32,7 +32,6 @@ const quotesData = memos.map((memo) => {
     date: memo.data.date.toISOString(),
     formattedDate: formatFullDate(memo.data.date),
     relativeTime: formatRelativeTime(memo.data.date),
-    likes: memo.data.likes || 0,
     url: `/memo/${memoId}`,
     twitterUrl: `https://twitter.com/intent/tweet?text=${encodeURIComponent(`“${plainText.slice(0, 200)}”\n\n— via ${SITE_CONFIG.title}`)}`,
   };
@@ -87,20 +86,6 @@ const initial = quotesData[0] || null;
       <!-- 底部操作栏 -->
       <div class="card-footer">
         <div class="footer-actions-left">
-          <!-- 点赞 -->
-          <button 
-            class="action-btn like-btn" 
-            id="random-like-btn"
-            data-id={initial.id} 
-            data-base-likes={initial.likes} 
-            title="心动 / 收藏"
-          >
-            <svg class="heart-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
-            </svg>
-            <span class="like-count">{initial.likes}</span>
-          </button>
-
           <!-- 生成海报 -->
           <button 
             class="action-btn poster-btn" 
@@ -189,7 +174,6 @@ const initial = quotesData[0] || null;
     const sourceTextEl = document.getElementById('random-source-text');
     const shuffleBtn = document.getElementById('shuffle-btn');
     const diceNode = document.getElementById('random-dice-trigger');
-    const likeBtn = document.getElementById('random-like-btn');
     const posterBtn = document.getElementById('random-poster-btn');
     const copyBtn = document.getElementById('random-copy-btn');
     const twitterLink = document.getElementById('random-twitter-link');
@@ -208,21 +192,6 @@ const initial = quotesData[0] || null;
             sourceEl.style.display = '';
           } else {
             sourceEl.style.display = 'none';
-          }
-        }
-
-        // 更新点赞按钮状态
-        if (likeBtn) {
-          likeBtn.setAttribute('data-id', q.id);
-          likeBtn.setAttribute('data-base-likes', String(q.likes));
-          const isLiked = localStorage.getItem(`liked_${q.id}`) === 'true';
-          const countSpan = likeBtn.querySelector('.like-count');
-          if (isLiked) {
-            likeBtn.classList.add('liked');
-            if (countSpan) countSpan.textContent = String(q.likes + 1);
-          } else {
-            likeBtn.classList.remove('liked');
-            if (countSpan) countSpan.textContent = String(q.likes);
           }
         }
 
@@ -547,17 +516,6 @@ const initial = quotesData[0] || null;
   .action-btn:hover {
     background: var(--border-color);
     color: var(--text-primary);
-  }
-
-  .like-btn:hover {
-    color: var(--like-color);
-    background: var(--like-bg);
-  }
-  .like-btn.liked {
-    color: var(--like-color);
-  }
-  .like-btn.liked .heart-icon {
-    fill: currentColor;
   }
 
   .poster-btn:hover,
