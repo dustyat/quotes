@@ -20,11 +20,11 @@
   --badge-bg: #f1f5f9;
   --badge-text: #475569;
   
-  /* 类似精装书/纸张的温润底色与墨色文字 */
-  --quote-box-bg: #faf7f2;
-  --quote-box-border: #ede6dc;
-  --quote-text-primary: #1f1d1a;
-  --quote-text-secondary: #70685f;
+  /* 极简通透纯净文本底色 */
+  --quote-box-bg: transparent;
+  --quote-box-border: transparent;
+  --quote-text-primary: #0f172a;
+  --quote-text-secondary: #64748b;
 
   --radius-sm: 8px;
   --radius-md: 12px;
@@ -55,19 +55,19 @@
   --text-secondary: #a1a1aa;
   --text-muted: #71717a;
   
-  --accent: #38bdf8;
-  --accent-hover: #7dd3fc;
-  --accent-light: rgba(56, 189, 248, 0.12);
-  --accent-glow: rgba(56, 189, 248, 0.2);
+  --accent: #f4f4f5;
+  --accent-hover: #ffffff;
+  --accent-light: rgba(255, 255, 255, 0.08);
+  --accent-glow: rgba(255, 255, 255, 0.15);
 
   --badge-bg: #18181b;
   --badge-text: #a1a1aa;
 
-  /* 暗色模式下仿墨色纸张质感 */
-  --quote-box-bg: #181715;
-  --quote-box-border: #2c2a26;
-  --quote-text-primary: #f2eee6;
-  --quote-text-secondary: #9c9589;
+  /* 暗色模式下极简通透底色 */
+  --quote-box-bg: transparent;
+  --quote-box-border: transparent;
+  --quote-text-primary: #f4f4f5;
+  --quote-text-secondary: #a1a1aa;
   
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);

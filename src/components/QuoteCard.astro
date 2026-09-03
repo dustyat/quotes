@@ -84,23 +84,22 @@ const shareTweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponen
           data-content={cleanBody} 
           data-source={data.source || ''} 
           data-date={fullDate}
-          title="生成精美金句海报"
+          title="生成金句海报"
+          aria-label="生成金句海报"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <rect width="18" height="18" x="3" y="3" rx="2" ry="2"></rect>
             <circle cx="9" cy="9" r="2"></circle>
             <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"></path>
           </svg>
-          <span>海报</span>
         </button>
 
         <!-- 复制纯文本 -->
-        <button class="action-btn copy-btn" data-text={cleanBody} title="复制金句内容">
-          <svg class="copy-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <button class="action-btn copy-btn" data-text={cleanBody} title="复制金句" aria-label="复制金句">
+          <svg class="copy-icon" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
             <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
           </svg>
-          <span class="copy-text">复制</span>
         </button>
       </div>
 
@@ -209,38 +208,38 @@ const shareTweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponen
     width: 10px;
     height: 10px;
     border-radius: var(--radius-full);
-    background: var(--bg-card);
-    border: 2px solid var(--accent);
+    background: var(--bg-primary);
+    border: 2px solid var(--text-primary);
     box-shadow: 0 0 0 3px var(--bg-primary);
     transition: all 0.2s ease;
   }
 
   .timeline-row:hover .node-circle-dot {
-    background: var(--accent);
+    background: var(--text-primary);
     transform: scale(1.3);
-    box-shadow: 0 0 0 3px var(--bg-primary), 0 0 10px var(--accent-glow);
+    box-shadow: 0 0 0 3px var(--bg-primary);
   }
 
   .node-pin-dot {
-    width: 12px;
-    height: 12px;
+    width: 10px;
+    height: 10px;
     border-radius: var(--radius-full);
-    background: var(--accent);
-    box-shadow: 0 0 0 3px var(--bg-primary), 0 0 8px var(--accent-glow);
+    background: var(--text-primary);
+    box-shadow: 0 0 0 3px var(--bg-primary);
     transition: all 0.2s ease;
   }
   .timeline-row:hover .node-pin-dot {
     transform: scale(1.3);
   }
 
-  /* 右侧卡片主体 */
+  /* 右侧卡片主体：极简现代无外框无背景 */
   .quote-card {
     flex: 1;
-    background: var(--bg-card);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-lg);
-    padding: 24px 26px;
-    box-shadow: var(--shadow-sm);
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    padding: 0 0 24px 0;
+    box-shadow: none;
     transition: all 0.2s ease;
     display: flex;
     flex-direction: column;
@@ -248,22 +247,22 @@ const shareTweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponen
   }
 
   .quote-card:hover {
-    border-color: var(--accent);
-    box-shadow: var(--shadow-md);
-    background: var(--bg-card-hover);
-    transform: translateY(-2px);
+    border-color: transparent;
+    box-shadow: none;
+    background: transparent;
+    transform: none;
   }
 
   .timeline-row.pinned .quote-card {
-    border-color: var(--accent);
-    background: linear-gradient(135deg, var(--bg-card), var(--accent-light));
+    border-color: transparent;
+    background: transparent;
   }
 
   /* 顶部栏 (置顶精选等) */
   .card-header {
     display: flex;
     align-items: center;
-    margin-bottom: 14px;
+    margin-bottom: 8px;
   }
   .pinned-badge {
     display: inline-flex;
@@ -271,38 +270,38 @@ const shareTweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponen
     gap: 4px;
     font-size: 0.75rem;
     font-weight: 700;
-    color: var(--accent);
-    background: var(--accent-light);
-    padding: 2px 8px;
-    border-radius: var(--radius-full);
-    border: 1px solid var(--accent-glow);
+    color: var(--text-primary);
+    background: transparent;
+    padding: 0;
+    border-radius: 0;
+    border: none;
   }
 
-  /* 正文区 (类似纸张质感的文字聚焦容器，充裕上下留白) */
+  /* 正文区：无内衬外框与背景，纯净通透排版 */
   .quote-main {
-    background: var(--quote-box-bg);
-    border: 1px solid var(--quote-box-border);
-    border-radius: var(--radius-md);
-    padding: 26px 28px;
-    margin-bottom: 22px;
-    transition: all 0.2s ease;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    padding: 0 0 10px 0;
+    margin-bottom: 0;
+    transition: none;
+    box-shadow: none;
   }
 
   .timeline-row:hover .quote-main {
-    border-color: var(--accent);
-    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.04);
+    border-color: transparent;
+    box-shadow: none;
   }
 
   .timeline-row.pinned .quote-main {
-    border-color: var(--accent-glow);
-    box-shadow: var(--shadow-sm);
+    border-color: transparent;
+    box-shadow: none;
   }
 
   .quote-body {
     font-size: 1.125rem;
     line-height: 1.85;
-    color: var(--quote-text-primary);
+    color: var(--text-primary);
     word-break: break-word;
     font-weight: 400;
   }
@@ -314,16 +313,16 @@ const shareTweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponen
   }
   .quote-body :global(strong) {
     font-weight: 700;
-    color: var(--accent);
+    color: var(--text-primary);
   }
 
   .quote-source {
-    margin-top: 16px;
+    margin-top: 14px;
     display: flex;
     align-items: center;
     gap: 6px;
     font-size: 0.9375rem;
-    color: var(--quote-text-secondary);
+    color: var(--text-secondary);
   }
   .source-dash {
     opacity: 0.5;
@@ -333,63 +332,72 @@ const shareTweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponen
     font-style: italic;
   }
 
-  /* 底部操作 */
+  /* 底部操作：极简纯图标与无框设计 */
   .card-footer {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding-top: 2px;
+    padding-top: 4px;
   }
   .footer-actions-left,
   .footer-actions-right {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
   }
 
   .action-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: var(--radius-full);
     display: inline-flex;
     align-items: center;
-    gap: 5px;
+    justify-content: center;
+    padding: 0;
+    margin: 0;
     color: var(--text-muted);
-    font-size: 0.8125rem;
-    font-weight: 500;
-    padding: 6px 12px;
-    border-radius: var(--radius-full);
-    background: var(--bg-secondary);
-    border: 1px solid transparent;
-    transition: all 0.15s ease;
+    background: transparent;
+    border: none;
+    transition: color 0.15s ease, transform 0.15s ease;
+    cursor: pointer;
   }
   .action-btn:hover {
-    background: var(--border-color);
+    background: transparent;
     color: var(--text-primary);
+    transform: scale(1.15);
   }
 
   .poster-btn:hover,
   .copy-btn:hover {
-    color: var(--accent);
-    background: var(--accent-light);
-    border-color: var(--accent-glow);
+    color: var(--text-primary);
+    background: transparent;
+    border-color: transparent;
+  }
+
+  .copy-btn.copied {
+    color: var(--text-primary);
   }
 
   .icon-link {
-    width: 32px;
-    height: 32px;
+    width: 30px;
+    height: 30px;
     border-radius: var(--radius-full);
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
     color: var(--text-muted);
-    background: var(--bg-secondary);
-    transition: all 0.15s ease;
+    background: transparent;
+    border: none;
+    transition: color 0.15s ease, transform 0.15s ease;
   }
   .icon-link:hover {
-    background: var(--border-color);
+    background: transparent;
     color: var(--text-primary);
+    transform: scale(1.15);
   }
   .twitter-link:hover {
-    color: #1d9bf0;
-    background: rgba(29, 155, 240, 0.12);
+    color: var(--text-primary);
+    background: transparent;
   }
 
   @media (max-width: 640px) {
@@ -411,19 +419,14 @@ const shareTweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponen
       font-size: 1rem;
     }
     .quote-card {
-      padding: 18px 18px;
+      padding: 0 0 18px 0;
     }
     .quote-main {
-      padding: 18px 18px;
-      margin-bottom: 16px;
+      padding: 0 0 10px 0;
     }
     .quote-body {
       font-size: 1.0625rem;
       line-height: 1.7;
-    }
-    .action-btn {
-      padding: 4px 8px;
-      font-size: 0.75rem;
     }
   }
 </style>
@@ -450,27 +453,28 @@ const shareTweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponen
       const copyBtn = e.target.closest('.copy-btn');
       if (copyBtn) {
         const text = copyBtn.getAttribute('data-text') || '';
+        const onCopied = () => {
+          copyBtn.classList.add('copied');
+          const originalTitle = copyBtn.getAttribute('title') || '复制金句';
+          copyBtn.setAttribute('title', '已复制！');
+          setTimeout(() => {
+            copyBtn.classList.remove('copied');
+            copyBtn.setAttribute('title', originalTitle);
+          }, 1500);
+        };
+
         if (text && navigator.clipboard) {
-          navigator.clipboard.writeText(text).then(() => {
-            const textSpan = copyBtn.querySelector('.copy-text');
-            if (textSpan) {
-              const original = textSpan.textContent;
-              textSpan.textContent = '已复制';
-              setTimeout(() => {
-                textSpan.textContent = original;
-              }, 1500);
-            }
-          }).catch(() => {
-            fallbackCopy(text, copyBtn);
+          navigator.clipboard.writeText(text).then(onCopied).catch(() => {
+            fallbackCopy(text, copyBtn, onCopied);
           });
         } else if (text) {
-          fallbackCopy(text, copyBtn);
+          fallbackCopy(text, copyBtn, onCopied);
         }
         return;
       }
     });
 
-    function fallbackCopy(text, btn) {
+    function fallbackCopy(text, btn, callback) {
       const textarea = document.createElement('textarea');
       textarea.value = text;
       textarea.style.position = 'fixed';
@@ -479,14 +483,7 @@ const shareTweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponen
       textarea.select();
       try {
         document.execCommand('copy');
-        const textSpan = btn.querySelector('.copy-text');
-        if (textSpan) {
-          const original = textSpan.textContent;
-          textSpan.textContent = '已复制';
-          setTimeout(() => {
-            textSpan.textContent = original;
-          }, 1500);
-        }
+        if (callback) callback();
       } catch (err) {
         alert('复制失败，请手动选择内容复制');
       } finally {
