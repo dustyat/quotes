@@ -2,9 +2,9 @@ import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
 
 const memos = defineCollection({
-  loader: glob({ pattern: '**/*.md', base: './src/content/memos' }),
+  loader: glob({ pattern: ['**/*.md', '!**/_*', '!**/_*/**'], base: './src/content/memos' }),
   schema: z.object({
-    date: z.coerce.date(),
+    date: z.coerce.date().optional().default(() => new Date()),
     pinned: z.boolean().optional().default(false),
     tags: z.array(z.string()).optional().default([]),
     source: z.string().optional(),
