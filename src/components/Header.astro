@@ -1,16 +1,17 @@
 ---
 import ThemeToggle from './ThemeToggle.astro';
 
-const currentPath = Astro.url.pathname;
+// 规范化当前路径，去除尾部斜杠确保路由匹配一致
+const pathname = Astro.url.pathname.replace(/\/$/, '') || '/';
 ---
 
 <header class="top-nav-bar">
   <div class="nav-container">
     <!-- Left: Navigation Menu Links -->
     <nav class="nav-menu">
-      <a href="/" class:list={['menu-item', { active: currentPath === '/' }]}>语录</a>
-      <a href="/tags" class:list={['menu-item', { active: currentPath.startsWith('/tags') }]}>话题</a>
-      <a href="/about" class:list={['menu-item', { active: currentPath === '/about' }]}>关于</a>
+      <a href="/" class:list={['menu-item', { active: pathname === '/' }]}>语录</a>
+      <a href="/tags" class:list={['menu-item', { active: pathname === '/tags' || pathname.startsWith('/tags/') }]}>话题</a>
+      <a href="/about" class:list={['menu-item', { active: pathname === '/about' || pathname.startsWith('/about/') }]}>关于</a>
     </nav>
 
     <!-- Center: Transparent Logo (亮色黑色，暗色白色) -->

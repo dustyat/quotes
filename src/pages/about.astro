@@ -11,7 +11,6 @@ import { SITE_CONFIG } from '@/utils/config';
   <div class="about-page">
     <div class="about-hero">
       <h2 class="about-title">{SITE_CONFIG.title}</h2>
-      <p class="about-slogan">{SITE_CONFIG.slogan}</p>
       <p class="about-desc">{SITE_CONFIG.description}</p>
     </div>
 
@@ -32,31 +31,31 @@ import { SITE_CONFIG } from '@/utils/config';
           <div class="feature-icon">⚡</div>
           <div class="feature-content">
             <h4 class="feature-title">纯静态极速生成</h4>
-            <p class="feature-desc">基于最新 Astro 架构，0 客户端冗余 JS 运行时，秒级加载，部署在 Cloudflare 全球 CDN。</p>
+            <p class="feature-desc">基于最新 Astro 静态渲染架构，纯静态生成，0 冗余客户端 JS，秒级响应，部署于 Cloudflare 全球边缘网络。</p>
           </div>
         </div>
 
         <div class="feature-card">
-          <div class="feature-icon">🤖</div>
+          <div class="feature-icon">✨</div>
           <div class="feature-content">
-            <h4 class="feature-title">2026 AI 友好开放</h4>
-            <p class="feature-desc">遵循 <code>/llms.txt</code> 与结构化数据规范，为现代 LLM 及 AI 搜索引擎提供干净的语料与语义索引。</p>
+            <h4 class="feature-title">极简现代美学</h4>
+            <p class="feature-desc">去除所有多余边框与色块修饰，强调色统一黑色加粗（暗色自适应纯白），沉浸回归文字本身。</p>
           </div>
         </div>
 
         <div class="feature-card">
           <div class="feature-icon">🖼️</div>
           <div class="feature-content">
-            <h4 class="feature-title">一键海报生成</h4>
-            <p class="feature-desc">纯前端 Canvas 引擎，随时将任意金句转化为高颜值分享图片。</p>
+            <h4 class="feature-title">纯前端极简海报</h4>
+            <p class="feature-desc">内置纯前端 Canvas 引擎，一键生成无边框极简金句卡片，支持随时保存高清图与直接复制。</p>
           </div>
         </div>
 
         <div class="feature-card">
-          <div class="feature-icon">🐦</div>
+          <div class="feature-icon">🌐</div>
           <div class="feature-content">
-            <h4 class="feature-title">Twitter (X) 自动同步</h4>
-            <p class="feature-desc">通过 GitHub Actions 流水线，每次更新自动调用 Twitter 官方 API 免费分发。</p>
+            <h4 class="feature-title">开放生态与协同</h4>
+            <p class="feature-desc">遵循结构化数据标准与 <code>/llms.txt</code> 规范，提供 RSS 与静态 JSON 接口，支持共建投递。</p>
           </div>
         </div>
       </div>
@@ -66,23 +65,23 @@ import { SITE_CONFIG } from '@/utils/config';
       <h3 class="section-title">订阅与开放接口</h3>
       <div class="open-links-grid">
         <a href="/rss.xml" target="_blank" class="open-link-card">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 11a9 9 0 0 1 9 9"></path><path d="M4 4a16 16 0 0 1 16 16"></path><circle cx="5" cy="19" r="1"></circle></svg>
+          <svg class="open-link-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11a9 9 0 0 1 9 9"></path><path d="M4 4a16 16 0 0 1 16 16"></path><circle cx="5" cy="19" r="1"></circle></svg>
           <div>
             <div class="link-title">RSS 2.0 订阅</div>
-            <div class="link-sub">在阅读器中同步更新</div>
+            <div class="link-sub">在阅读器中同步更新最新金句</div>
           </div>
         </a>
 
         <a href="/llms.txt" target="_blank" class="open-link-card">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8V4H8"></path><rect width="16" height="12" x="4" y="8" rx="2"></rect><path d="M2 14h2"></path><path d="M20 14h2"></path></svg>
+          <svg class="open-link-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"></path><rect width="16" height="12" x="4" y="8" rx="2"></rect><path d="M2 14h2"></path><path d="M20 14h2"></path></svg>
           <div>
             <div class="link-title">AI / llms.txt</div>
-            <div class="link-sub">LLM 语义索引语料</div>
+            <div class="link-sub">为 LLM 提供结构化语义索引</div>
           </div>
         </a>
 
         <a href="/api/memos.json" target="_blank" class="open-link-card">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+          <svg class="open-link-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
           <div>
             <div class="link-title">JSON 开放接口</div>
             <div class="link-sub">纯静态 REST 数据端点</div>
@@ -95,38 +94,33 @@ import { SITE_CONFIG } from '@/utils/config';
 
 <style>
   .about-page {
-    padding: 24px;
+    padding: 24px 0 40px 0;
   }
   .about-hero {
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
-    padding-bottom: 24px;
+    padding-bottom: 28px;
     border-bottom: 1px solid var(--border-color);
   }
   .about-title {
-    font-size: 1.5rem;
+    font-size: 1.875rem;
     font-weight: 800;
     color: var(--text-primary);
-  }
-  .about-slogan {
-    font-size: 1rem;
-    color: var(--accent);
-    font-weight: 600;
-    margin-top: 4px;
-    font-style: italic;
+    letter-spacing: -0.02em;
+    line-height: 1;
   }
   .about-desc {
     font-size: 0.9375rem;
     color: var(--text-secondary);
-    max-width: 480px;
-    margin-top: 10px;
+    max-width: 520px;
+    margin-top: 12px;
     line-height: 1.6;
   }
 
   .about-section {
-    padding-top: 24px;
+    padding-top: 28px;
   }
   .section-title {
     font-size: 1.0625rem;
@@ -137,66 +131,95 @@ import { SITE_CONFIG } from '@/utils/config';
   .section-text {
     font-size: 0.9375rem;
     color: var(--text-secondary);
-    line-height: 1.7;
+    line-height: 1.75;
     margin-bottom: 12px;
   }
+  .section-text strong {
+    color: var(--text-primary);
+    font-weight: 700;
+  }
 
+  /* 特性列表：极简现代无外框无背景 */
   .tech-features-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 12px;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px 24px;
     margin-top: 14px;
   }
   .feature-card {
     display: flex;
     gap: 12px;
-    padding: 14px;
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
+    padding: 4px 0;
+    background: transparent;
+    border: none;
+    border-radius: 0;
   }
   .feature-icon {
     font-size: 1.25rem;
+    line-height: 1.3;
+    flex-shrink: 0;
   }
   .feature-title {
-    font-size: 0.875rem;
+    font-size: 0.9375rem;
     font-weight: 700;
     color: var(--text-primary);
     margin-bottom: 4px;
   }
   .feature-desc {
-    font-size: 0.75rem;
+    font-size: 0.8125rem;
     color: var(--text-secondary);
-    line-height: 1.5;
+    line-height: 1.6;
   }
 
+  /* 开放链接：极简现代无外框无背景 */
   .open-links-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 12px;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
     margin-top: 14px;
   }
   .open-link-card {
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 12px 14px;
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
-    transition: all 0.15s ease;
+    padding: 8px 0;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    transition: opacity 0.15s ease, transform 0.15s ease;
   }
   .open-link-card:hover {
-    border-color: var(--accent);
-    background: var(--bg-card-hover);
+    opacity: 0.75;
+    transform: translateX(3px);
+    background: transparent;
+  }
+  .open-link-icon {
+    color: var(--text-muted);
+    flex-shrink: 0;
+    transition: color 0.15s ease;
+  }
+  .open-link-card:hover .open-link-icon {
+    color: var(--text-primary);
   }
   .link-title {
-    font-size: 0.8125rem;
+    font-size: 0.875rem;
     font-weight: 600;
     color: var(--text-primary);
   }
   .link-sub {
-    font-size: 0.6875rem;
+    font-size: 0.75rem;
     color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  @media (max-width: 640px) {
+    .tech-features-grid {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+    .open-links-grid {
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
   }
 </style>
