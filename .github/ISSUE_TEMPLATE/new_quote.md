@@ -15,4 +15,4 @@ labels: ["quote-publish"]
 
 
 ### 心情微标
-💡
+

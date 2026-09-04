@@ -163,6 +163,9 @@ export function parseIssueBody(body, createdAt = null) {
     else if (finalTags.includes('人生哲学')) finalMood = '🌌';
     else if (finalTags.includes('AI时代')) finalMood = '🤖';
     else if (finalTags.includes('设计')) finalMood = '🎨';
+    else if (finalTags.includes('行动')) finalMood = '🔥';
+    else if (finalTags.includes('创造力')) finalMood = '✨';
+    else if (finalTags.includes('生活')) finalMood = '☕';
     else finalMood = '💡';
   }
 
