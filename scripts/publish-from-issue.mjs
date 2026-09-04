@@ -4,10 +4,26 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 function extractSection(body, headerKeyword) {
-  const regex = new RegExp(`###\\s*[^\\r\\n]*${headerKeyword}[^\\r\\n]*\\r?\\n+([\\s\\S]*?)(?=(?:\\r?\\n###\\s*|$))`, 'i');
-  const match = body.match(regex);
-  if (!match) return '';
-  let text = match[1].trim();
+  const lines = body.split(/\r?\n/);
+  let capturing = false;
+  const capturedLines = [];
+
+  for (const line of lines) {
+    const isHeader = /^###\s+(.*)/.exec(line);
+    if (isHeader) {
+      if (capturing) {
+        break;
+      }
+      if (new RegExp(headerKeyword, 'i').test(isHeader[1])) {
+        capturing = true;
+        continue;
+      }
+    } else if (capturing) {
+      capturedLines.push(line);
+    }
+  }
+
+  const text = capturedLines.join('\n').trim();
   if (text === '_No response_') return '';
   return text;
 }
@@ -117,11 +133,44 @@ export function parseIssueBody(body, createdAt = null) {
     throw new Error('❌ 未能解析出金句正文内容，请检查 Issue 内容！');
   }
 
+  // 标签自动推导（若留空则根据内容和来源关键词智能生成）
+  let finalTags = Array.from(tags);
+  if (finalTags.length === 0) {
+    const text = `${content} ${source}`.toLowerCase();
+    const autoTags = new Set();
+    const rules = [
+      { tag: '读书笔记', match: /《|》|书籍|作者|摘录|读书/i },
+      { tag: '投资', match: /投资|股票|复利|商业|巴菲特|芒格|财富|资本/i },
+      { tag: '思考', match: /思考|思维|反思|认知|本质|逻辑|洞察|系统/i },
+      { tag: 'AI时代', match: /ai|gpt|llm|人工智能|算法|智能|模型/i },
+      { tag: '设计', match: /设计|美学|简约|极简|交互|视觉|工业设计/i },
+      { tag: '行动', match: /行动|执行|坚持|习惯|勇气|自律|实践/i },
+      { tag: '人生哲学', match: /人生|意义|自由|生命|幸福|哲学|罗素|尼采/i },
+      { tag: '创造力', match: /创造|灵感|艺术|写作|创意/i },
+    ];
+    for (const rule of rules) {
+      if (rule.match.test(text)) autoTags.add(rule.tag);
+    }
+    if (autoTags.size === 0) autoTags.add('思考');
+    finalTags = Array.from(autoTags);
+  }
+
+  // 心情表情若留空，根据标签自动匹配或保底 💡
+  let finalMood = mood;
+  if (!finalMood) {
+    if (finalTags.includes('读书笔记')) finalMood = '📚';
+    else if (finalTags.includes('投资')) finalMood = '📈';
+    else if (finalTags.includes('人生哲学')) finalMood = '🌌';
+    else if (finalTags.includes('AI时代')) finalMood = '🤖';
+    else if (finalTags.includes('设计')) finalMood = '🎨';
+    else finalMood = '💡';
+  }
+
   return {
     content,
     source,
-    tags: Array.from(tags),
-    mood,
+    tags: finalTags,
+    mood: finalMood,
     pinned,
     date: targetDate,
   };
