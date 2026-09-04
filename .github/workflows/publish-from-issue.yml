@@ -1,0 +1,84 @@
+name: 🚀 Publish Quote from Issue
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: quote-publish-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  # 1. 站长本人提交：直接自动生成文件、推送代码、自动闭环并发布
+  publish-owner-quote:
+    name: 🚀 Publish Owner Quote
+    if: github.event.issue.user.login == github.repository_owner
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Parse Issue & Generate Memo
+        env:
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          ISSUE_CREATED_AT: ${{ github.event.issue.created_at }}
+        run: |
+          node scripts/publish-from-issue.mjs
+
+      - name: Commit and push changes
+        run: |
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git add src/content/memos/
+          if git diff --staged --quiet; then
+            echo "No changes detected, skipping commit."
+          else
+            git commit -m "feat(quote): auto publish from issue #${{ github.event.issue.number }}"
+            git push origin main
+          fi
+
+      - name: Comment and Close Issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: '🎉 **金句已自动生成并发布！**\n\n已成功生成 Markdown 文件并同步推送至 `main` 分支。相关静态页面部署将由 Cloudflare 自动触发。本 Issue 已自动归档关闭。'
+            });
+            await github.rest.issues.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              state: 'closed',
+              state_reason: 'completed'
+            });
+
+  # 2. 外部访客提交：仅做友好回复与打标，不执行任何代码推送
+  handle-guest-submission:
+    name: 📥 Queue Guest Submission
+    if: github.event.issue.user.login != github.repository_owner
+    runs-on: ubuntu-latest
+    steps:
+      - name: Reply to Guest Submission
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: '👋 **感谢您的金句投递！**\n\n为了保障网站内容质量，公开仓库中访客提交的内容已进入**站长人工审核队列**。站长审核通过后会为您录入并上线。'
+            });
