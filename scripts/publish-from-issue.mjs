@@ -23,12 +23,19 @@ export function parseIssueBody(body, createdAt = null) {
   // 1. 判断是否匹配 Issue Form 模板格式
   const formContent = extractSection(body, '金句正文');
 
+  const cleanPlaceholder = (text) => {
+    if (!text) return '';
+    const trimmed = text.trim();
+    if (/^[（(].*[）)]$/.test(trimmed)) return '';
+    return trimmed;
+  };
+
   if (formContent) {
     // === 结构化模板模式 ===
-    content = formContent;
+    content = formContent.replace(/^[（(][^）)]*[）)]\s*/i, '').trim();
 
     // 来源
-    source = extractSection(body, '来源');
+    source = cleanPlaceholder(extractSection(body, '来源'));
 
     // 常用标签快捷多选 (- [x] 思考)
     const tagsSection = extractSection(body, '常用标签');
@@ -40,10 +47,20 @@ export function parseIssueBody(body, createdAt = null) {
       }
     }
 
-    // 自定义补充标签
-    const customTags = extractSection(body, '其它补充标签');
+    // 自定义补充标签 / 通用标签
+    const customTags = extractSection(body, '其它补充标签') || extractSection(body, '标签');
     if (customTags) {
-      customTags.split(/[,，]/).map(t => t.trim()).filter(Boolean).forEach(t => tags.add(t));
+      const checkboxMatches = customTags.matchAll(/-\s*\[x\]\s*([^\r\n]+)/gi);
+      let foundCheckbox = false;
+      for (const m of checkboxMatches) {
+        foundCheckbox = true;
+        const tag = m[1].trim();
+        if (tag) tags.add(tag);
+      }
+      if (!foundCheckbox) {
+        const cleaned = cleanPlaceholder(customTags);
+        cleaned.split(/[,，]/).map(t => t.trim()).filter(Boolean).forEach(t => tags.add(t));
+      }
     }
 
     // 心情表情 (如 "💡 (灵感/洞察)" -> "💡")
@@ -63,8 +80,8 @@ export function parseIssueBody(body, createdAt = null) {
     }
 
     // 置顶
-    const pinnedSection = extractSection(body, '置顶设置');
-    if (pinnedSection && /-\s*\[x\]/i.test(pinnedSection)) {
+    const pinnedSection = extractSection(body, '置顶');
+    if (pinnedSection && (/-\s*\[x\]/i.test(pinnedSection) || /true|是/i.test(pinnedSection))) {
       pinned = true;
     }
 
