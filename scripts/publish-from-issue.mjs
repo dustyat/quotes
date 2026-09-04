@@ -28,7 +28,7 @@ function extractSection(body, headerKeyword) {
   return text;
 }
 
-export function parseIssueBody(body, createdAt = null) {
+export function parseIssueBody(body, createdAt = null, rawTitle = null) {
   let content = '';
   let source = '';
   const tags = new Set();
@@ -166,10 +166,32 @@ export function parseIssueBody(body, createdAt = null) {
     else if (finalTags.includes('行动')) finalMood = '🔥';
     else if (finalTags.includes('创造力')) finalMood = '✨';
     else if (finalTags.includes('生活')) finalMood = '☕';
-    else finalMood = '💡';
+  }
+
+  // 标题处理：若用户填写则以填写为准，否则根据内容与出处自动生成
+  const cleanTitle = (rawTitle || '').trim();
+  let finalTitle = '';
+  if (cleanTitle && !/^[【\[]?金句发布[】\]]?$/i.test(cleanTitle)) {
+    finalTitle = cleanTitle;
+  } else {
+    const cleanContent = content
+      .replace(/^#+\s+/gm, '')
+      .replace(/[*_`~>]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+    const snippet = cleanContent.length > 24 
+      ? cleanContent.slice(0, 24) + '...' 
+      : cleanContent;
+
+    if (source && source.trim()) {
+      finalTitle = `${source.trim()}：“${snippet}”`;
+    } else {
+      finalTitle = `“${snippet}”`;
+    }
   }
 
   return {
+    title: finalTitle,
     content,
     source,
     tags: finalTags,
@@ -179,7 +201,7 @@ export function parseIssueBody(body, createdAt = null) {
   };
 }
 
-export function generateMemoFile({ content, source, tags, mood, pinned, date }, outputDir) {
+export function generateMemoFile({ title, content, source, tags, mood, pinned, date }, outputDir) {
   const year = date.getFullYear();
   const month = (date.getMonth() + 1).toString().padStart(2, '0');
   const day = date.getDate().toString().padStart(2, '0');
@@ -201,6 +223,7 @@ export function generateMemoFile({ content, source, tags, mood, pinned, date }, 
 
   let frontmatter = `---
 date: ${date.toISOString()}
+title: "${(title || '').replace(/"/g, '\\"')}"
 `;
 
   if (pinned) {
@@ -279,17 +302,25 @@ async function main() {
 
   const issueBody = process.env.ISSUE_BODY;
   const issueCreatedAt = process.env.ISSUE_CREATED_AT;
+  const issueTitle = process.env.ISSUE_TITLE || '';
 
   if (!issueBody) {
     console.error('❌ 缺少环境变量 ISSUE_BODY');
     process.exit(1);
   }
 
-  const parsed = parseIssueBody(issueBody, issueCreatedAt);
+  const parsed = parseIssueBody(issueBody, issueCreatedAt, issueTitle);
   const targetDir = path.resolve(process.cwd(), 'src/content/memos');
   const { filename } = generateMemoFile(parsed, targetDir);
 
+  if (process.env.GITHUB_OUTPUT) {
+    // 处理多行或引号兼容
+    const safeTitle = (parsed.title || '').replace(/[\r\n]+/g, ' ').replace(/"/g, '\\"');
+    fs.appendFileSync(process.env.GITHUB_OUTPUT, `memo_title=${safeTitle}\n`);
+  }
+
   console.log(`✅ 成功生成金句文件: src/content/memos/${filename}`);
+  console.log(`📌 金句标题: ${parsed.title}`);
 }
 
 // 仅在直接执行时调用 main
