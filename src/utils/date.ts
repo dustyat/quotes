@@ -47,6 +47,23 @@ export function formatFullDate(dateInput: string | Date): string {
   return `${year}年${month}月${day}日 ${hours}:${minutes}`;
 }
 
+export function formatDateTime(dateInput: string | Date): { date: string; time: string; full: string } {
+  const d = typeof dateInput === 'string' ? new Date(dateInput) : dateInput;
+  const year = d.getFullYear();
+  const month = (d.getMonth() + 1).toString().padStart(2, '0');
+  const day = d.getDate().toString().padStart(2, '0');
+  const hours = d.getHours().toString().padStart(2, '0');
+  const minutes = d.getMinutes().toString().padStart(2, '0');
+
+  const dateStr = `${year}-${month}-${day}`;
+  const timeStr = `${hours}:${minutes}`;
+  return {
+    date: dateStr,
+    time: timeStr,
+    full: `${dateStr} ${timeStr}`,
+  };
+}
+
 export function toIsoString(dateInput: string | Date): string {
   const date = typeof dateInput === 'string' ? new Date(dateInput) : dateInput;
   return date.toISOString();

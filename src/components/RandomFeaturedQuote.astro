@@ -404,11 +404,11 @@ const initial = quotesData[0] || null;
     margin-top: 8px;
   }
 
-  /* 左侧标签：“随机卡片” - 颜色与时间戳完全一致 */
+  /* 左侧标签：“随机卡片” - 颜色与时间戳完全一致，左对齐与导航首字对齐 */
   .timeline-time {
-    width: 76px;
+    width: 124px;
     margin-top: 7px;
-    text-align: right;
+    text-align: left;
     flex-shrink: 0;
   }
 
@@ -423,6 +423,7 @@ const initial = quotesData[0] || null;
     white-space: nowrap;
     letter-spacing: 0.02em;
     display: inline-block;
+    text-align: left;
   }
 
   /* 中间时间轴轨道：增加右侧间距远离卡片 */
@@ -735,8 +736,9 @@ const initial = quotesData[0] || null;
       margin-bottom: 20px;
     }
     .timeline-time {
-      width: 66px;
+      width: 72px;
       margin-top: 5px;
+      text-align: left;
     }
     .random-side-badge {
       font-size: 0.75rem;

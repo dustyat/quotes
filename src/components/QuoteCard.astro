@@ -1,7 +1,7 @@
 ---
 import { SITE_CONFIG } from '@/utils/config';
-import { formatFullDate } from '@/utils/date';
-import { DEFAULT_LOCALE, type Locale, LOCALES, useTranslations, formatLocalizedRelativeTime } from '@/i18n/ui';
+import { formatFullDate, formatDateTime } from '@/utils/date';
+import { DEFAULT_LOCALE, type Locale, LOCALES, useTranslations } from '@/i18n/ui';
 
 interface Props {
   id: string;
@@ -23,7 +23,7 @@ const { id, body, data, isFirst = false, isLast = false, locale = DEFAULT_LOCALE
 
 const t = useTranslations(locale);
 const memoDate = data.date ? new Date(data.date) : new Date();
-const relativeTime = formatLocalizedRelativeTime(memoDate, locale);
+const dateTime = formatDateTime(memoDate);
 const fullDate = formatFullDate(memoDate);
 
 const translations = data.translations || {};
@@ -61,10 +61,12 @@ const hasTranslations = translations && Object.keys(translations).length > 0;
   <!-- 隐藏的完整多语言数据，供客户端即时切换 -->
   <script type="application/json" class="card-translations-data" set:html={JSON.stringify(translations)}></script>
 
-  <!-- 左侧时间戳 -->
+  <!-- 左侧时间戳：左对齐，与顶部导航首字垂直对齐 -->
   <div class="timeline-time">
     <time class="post-time" datetime={memoDate.toISOString()} title={fullDate}>
-      <a href={memoPath}>{relativeTime}</a>
+      <a href={memoPath} title={fullDate}>
+        <span class="time-date">{dateTime.date}</span><span class="time-sep"> </span><span class="time-hour">{dateTime.time}</span>
+      </a>
     </time>
   </div>
 
@@ -218,11 +220,11 @@ const hasTranslations = translations && Object.keys(translations).length > 0;
     margin-bottom: 28px;
   }
 
-  /* 左侧时间戳 */
+  /* 左侧时间戳：左对齐，与顶部导航首字对齐 */
   .timeline-time {
-    width: 76px;
+    width: 124px;
     margin-top: 7px;
-    text-align: right;
+    text-align: left;
     flex-shrink: 0;
   }
   .post-time {
@@ -230,10 +232,21 @@ const hasTranslations = translations && Object.keys(translations).length > 0;
     color: var(--text-muted);
     font-family: var(--font-mono);
     white-space: nowrap;
+    text-align: left;
+    display: block;
+    line-height: 1.5;
+  }
+  .post-time a {
+    color: inherit;
+    text-decoration: none;
+    display: inline-block;
   }
   .post-time a:hover {
     color: var(--accent);
     text-decoration: underline;
+  }
+  .time-sep {
+    display: inline;
   }
 
   /* 时间轴轨道与文章留白：增大间距远离卡片 */
@@ -546,11 +559,21 @@ const hasTranslations = translations && Object.keys(translations).length > 0;
       margin-bottom: 20px;
     }
     .timeline-time {
-      width: 66px;
+      width: 72px;
       margin-top: 5px;
+      text-align: left;
     }
     .post-time {
-      font-size: 0.75rem;
+      font-size: 0.6875rem;
+      line-height: 1.25;
+      white-space: normal;
+    }
+    .time-sep {
+      display: none;
+    }
+    .time-date,
+    .time-hour {
+      display: block;
     }
     .timeline-track {
       width: 18px;
