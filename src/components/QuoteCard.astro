@@ -1,6 +1,7 @@
 ---
 import { SITE_CONFIG } from '@/utils/config';
-import { formatRelativeTime, formatFullDate } from '@/utils/date';
+import { formatFullDate } from '@/utils/date';
+import { DEFAULT_LOCALE, type Locale, LOCALES, useTranslations, formatLocalizedRelativeTime } from '@/i18n/ui';
 
 interface Props {
   id: string;
@@ -11,31 +12,59 @@ interface Props {
     tags?: string[];
     source?: string;
     mood?: string;
+    translations?: Record<string, { content: string; source?: string }>;
   };
   isFirst?: boolean;
   isLast?: boolean;
+  locale?: Locale;
 }
 
-const { id, body, data, isFirst = false, isLast = false } = Astro.props;
+const { id, body, data, isFirst = false, isLast = false, locale = DEFAULT_LOCALE } = Astro.props;
 
-const relativeTime = formatRelativeTime(data.date);
-const fullDate = formatFullDate(data.date);
-const plainText = body.replace(/[\n#*`_]/g, ' ').trim();
-const cleanBody = body.replace(/[*#`_]/g, '').trim();
+const t = useTranslations(locale);
+const memoDate = data.date ? new Date(data.date) : new Date();
+const relativeTime = formatLocalizedRelativeTime(memoDate, locale);
+const fullDate = formatFullDate(memoDate);
+
+const translations = data.translations || {};
+
+// 当前语言对应的内容与出处
+const displayContent = (locale !== DEFAULT_LOCALE && translations[locale]?.content)
+  ? translations[locale].content
+  : body;
+
+const displaySource = (locale !== DEFAULT_LOCALE && translations[locale]?.source)
+  ? translations[locale].source
+  : (data.source || '');
+
+const plainText = displayContent.replace(/[\n#*`_]/g, ' ').trim();
+const cleanBody = displayContent.replace(/[*#`_]/g, '').trim();
 
 // 构建 Twitter/X 分享内容：金句正文 + 来源出处 + 平台落款 + 原文链接
-const sourcePart = data.source ? `\n\n—— ${data.source}` : '';
+const sourcePart = displaySource ? `\n\n—— ${displaySource}` : '';
 const tweetText = `“${plainText.slice(0, 110)}${plainText.length > 110 ? '...' : ''}”${sourcePart}\n\n— via ${SITE_CONFIG.title}`;
-const memoPath = `/memo/${id}`;
+
+const langPrefix = LOCALES[locale]?.prefix || '';
+const memoPath = `${langPrefix}/memo/${id}`;
 const defaultShareUrl = `${SITE_CONFIG.siteUrl}${memoPath}`;
 const shareTweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}&url=${encodeURIComponent(defaultShareUrl)}`;
+
+const hasTranslations = translations && Object.keys(translations).length > 0;
 ---
 
-<div class:list={['timeline-row', { pinned: data.pinned, 'is-first': isFirst, 'is-last': isLast }]} data-id={id}>
+<div 
+  class:list={['timeline-row', { pinned: data.pinned, 'is-first': isFirst, 'is-last': isLast }]} 
+  data-id={id}
+  data-original-body={body}
+  data-original-source={data.source || ''}
+>
+  <!-- 隐藏的完整多语言数据，供客户端即时切换 -->
+  <script type="application/json" class="card-translations-data" set:html={JSON.stringify(translations)}></script>
+
   <!-- 左侧时间戳 -->
   <div class="timeline-time">
-    <time class="post-time" datetime={data.date.toISOString()} title={fullDate}>
-      <a href={`/memo/${id}`}>{relativeTime}</a>
+    <time class="post-time" datetime={memoDate.toISOString()} title={fullDate}>
+      <a href={memoPath}>{relativeTime}</a>
     </time>
   </div>
 
@@ -61,7 +90,7 @@ const shareTweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponen
           <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
             <path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/>
           </svg>
-          <span>置顶精选</span>
+          <span>{t('card.pinned')}</span>
         </span>
       </div>
     )}
@@ -69,15 +98,13 @@ const shareTweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponen
     <!-- 正文内容区 -->
     <div class="quote-main">
       <div class="quote-body">
-        <slot />
+        {locale === DEFAULT_LOCALE ? <slot /> : <p>{displayContent}</p>}
       </div>
 
-      {data.source && (
-        <div class="quote-source">
-          <span class="source-dash">——</span>
-          <span class="source-text">{data.source}</span>
-        </div>
-      )}
+      <div class="quote-source" style={displaySource ? '' : 'display: none;'}>
+        <span class="source-dash">——</span>
+        <span class="source-text">{displaySource}</span>
+      </div>
     </div>
 
     <!-- 底部操作栏 -->
@@ -87,11 +114,13 @@ const shareTweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponen
         <button 
           class="action-btn poster-btn" 
           data-content={cleanBody} 
-          data-source={data.source || ''} 
+          data-source={displaySource} 
           data-date={fullDate}
           data-id={id}
-          title="生成金句海报"
-          aria-label="生成金句海报"
+          data-cur-lang={locale}
+          data-translations={JSON.stringify(translations)}
+          title={t('action.poster')}
+          aria-label={t('action.poster')}
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <rect width="18" height="18" x="3" y="3" rx="2" ry="2"></rect>
@@ -101,12 +130,28 @@ const shareTweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponen
         </button>
 
         <!-- 复制纯文本 -->
-        <button class="action-btn copy-btn" data-text={cleanBody} title="复制金句" aria-label="复制金句">
+        <button 
+          class="action-btn copy-btn" 
+          data-text={cleanBody} 
+          title={t('action.copy')} 
+          aria-label={t('action.copy')}
+        >
           <svg class="copy-icon" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
             <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
           </svg>
         </button>
+
+        <!-- 卡片多语言一键切换胶囊 -->
+        {hasTranslations && (
+          <div class="card-lang-pills" title="切换语言查看与分享">
+            <button type="button" class:list={['card-lang-pill', { active: locale === 'zh' }]} data-lang="zh" aria-label="中文">中</button>
+            <button type="button" class:list={['card-lang-pill', { active: locale === 'en' }]} data-lang="en" aria-label="English">EN</button>
+            <button type="button" class:list={['card-lang-pill', { active: locale === 'ja' }]} data-lang="ja" aria-label="日本語">日</button>
+            <button type="button" class:list={['card-lang-pill', { active: locale === 'ko' }]} data-lang="ko" aria-label="한국어">韓</button>
+            <button type="button" class:list={['card-lang-pill', { active: locale === 'vi' }]} data-lang="vi" aria-label="Tiếng Việt">越</button>
+          </div>
+        )}
       </div>
 
       <div class="footer-actions-right">
@@ -146,8 +191,8 @@ const shareTweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponen
           class="icon-link share-link-btn" 
           data-path={memoPath} 
           data-title={plainText.slice(0, 60)}
-          title="分享 / 复制链接" 
-          aria-label="分享 / 复制链接"
+          title={t('action.share')} 
+          aria-label={t('action.share')}
         >
           <svg class="share-normal-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="18" cy="5" r="3"></circle>
@@ -465,6 +510,37 @@ const shareTweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponen
     display: inline-block !important;
   }
 
+  /* 卡片内多语言快捷切换胶囊 */
+  .card-lang-pills {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    margin-left: 6px;
+    padding: 2px 4px;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-full);
+  }
+  .card-lang-pill {
+    padding: 1px 6px;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    border-radius: var(--radius-full);
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    line-height: 1.4;
+    transition: all 0.15s ease;
+  }
+  .card-lang-pill:hover {
+    color: var(--text-primary);
+  }
+  .card-lang-pill.active {
+    background: var(--bg-card);
+    color: var(--text-primary);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+  }
+
   @media (max-width: 640px) {
     .timeline-row {
       margin-bottom: 20px;
@@ -519,6 +595,77 @@ const shareTweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponen
 
     // 全局事件委托处理卡片交互
     document.addEventListener('click', (e) => {
+      // 0. 卡片内多语言快捷切换
+      const langPill = e.target.closest('.card-lang-pill');
+      if (langPill) {
+        e.preventDefault();
+        const row = langPill.closest('.timeline-row');
+        if (!row) return;
+        const targetLang = langPill.getAttribute('data-lang') || 'zh';
+        const transScript = row.querySelector('.card-translations-data');
+        if (!transScript) return;
+        let transData = {};
+        try { transData = JSON.parse(transScript.textContent || '{}'); } catch(e) {}
+
+        const originalBody = row.getAttribute('data-original-body') || '';
+        const originalSource = row.getAttribute('data-original-source') || '';
+
+        let targetContent = originalBody;
+        let targetSource = originalSource;
+
+        if (targetLang !== 'zh' && transData[targetLang]) {
+          targetContent = transData[targetLang].content || originalBody;
+          targetSource = transData[targetLang].source || originalSource;
+        }
+
+        // 更新卡片正文与出处
+        const bodyEl = row.querySelector('.quote-body');
+        if (bodyEl) {
+          bodyEl.innerHTML = `<p>${targetContent.replace(/\n\n+/g, '</p><p>').replace(/\n/g, '<br/>')}</p>`;
+        }
+        const sourceEl = row.querySelector('.source-text');
+        const sourceBox = row.querySelector('.quote-source');
+        if (sourceEl && sourceBox) {
+          if (targetSource) {
+            sourceEl.textContent = targetSource;
+            sourceBox.style.display = 'flex';
+          } else {
+            sourceBox.style.display = 'none';
+          }
+        }
+
+        // 更新胶囊高亮状态
+        row.querySelectorAll('.card-lang-pill').forEach(p => {
+          if (p.getAttribute('data-lang') === targetLang) p.classList.add('active');
+          else p.classList.remove('active');
+        });
+
+        // 同步更新复制、海报与推特链接
+        const cleanContent = targetContent.replace(/[*#`_]/g, '').trim();
+        const copyBtn = row.querySelector('.copy-btn');
+        if (copyBtn) copyBtn.setAttribute('data-text', cleanContent);
+
+        const posterBtn = row.querySelector('.poster-btn');
+        if (posterBtn) {
+          posterBtn.setAttribute('data-content', cleanContent);
+          posterBtn.setAttribute('data-source', targetSource);
+          posterBtn.setAttribute('data-cur-lang', targetLang);
+        }
+
+        const twitterBtn = row.querySelector('.twitter-link');
+        if (twitterBtn) {
+          const plain = cleanContent.replace(/[\n#*`_]/g, ' ').slice(0, 110);
+          const srcPart = targetSource ? `\n\n—— ${targetSource}` : '';
+          const tweet = `“${plain}”${srcPart}\n\n— via Quotes`;
+          twitterBtn.setAttribute('data-text', tweet);
+          const langPrefix = targetLang === 'zh' ? '' : `/${targetLang}`;
+          const id = row.getAttribute('data-id') || '';
+          twitterBtn.setAttribute('data-path', `${langPrefix}/memo/${id}`);
+        }
+
+        return;
+      }
+
       // 1. 生成海报
       const posterBtn = e.target.closest('.poster-btn');
       if (posterBtn) {
@@ -526,8 +673,13 @@ const shareTweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponen
         const source = posterBtn.getAttribute('data-source') || '';
         const date = posterBtn.getAttribute('data-date') || '';
         const id = posterBtn.getAttribute('data-id') || '';
+        const currentLang = posterBtn.getAttribute('data-cur-lang') || 'zh';
+        const transRaw = posterBtn.getAttribute('data-translations') || '{}';
+        let translations = {};
+        try { translations = JSON.parse(transRaw); } catch(e) {}
+
         if (typeof window.openPosterModal === 'function') {
-          window.openPosterModal({ content, source, date, id });
+          window.openPosterModal({ content, source, date, id, currentLang, translations });
         }
         return;
       }

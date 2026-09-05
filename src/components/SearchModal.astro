@@ -1,4 +1,12 @@
 ---
+import { DEFAULT_LOCALE, type Locale, useTranslations } from '@/i18n/ui';
+
+interface Props {
+  locale?: Locale;
+}
+
+const { locale = DEFAULT_LOCALE } = Astro.props;
+const t = useTranslations(locale);
 ---
 
 <div id="search-modal" class="search-modal-overlay" aria-hidden="true">
@@ -11,14 +19,14 @@
       <input 
         type="text" 
         id="search-query-input" 
-        placeholder="输入关键词搜索金句、思考、话题..." 
+        placeholder={t('search.placeholder')} 
         autocomplete="off"
       />
       <button id="close-search-btn" class="close-search-btn" aria-label="关闭">ESC</button>
     </div>
 
     <div class="search-results-list" id="search-results-list">
-      <div class="search-placeholder">输入关键词开始检索...</div>
+      <div class="search-placeholder">{t('search.placeholder')}</div>
     </div>
   </div>
 </div>

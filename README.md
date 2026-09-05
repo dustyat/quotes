@@ -20,9 +20,14 @@
   - **X (Twitter)**: 一键发推，自动携带精简摘要、来源出处、原文追溯链接与 `— via Quotes` 标识。
   - **Facebook**: 一键分享至 Facebook 动态。
   - **通用原生分享**: 移动端自动唤起系统原生分享面板（微信、朋友圈、系统便签等），PC 端快速复制原文追溯链接并提示反馈。
+- 🌐 **全栈原生多语言 (i18n: 中 / EN / 日 / 韓 / 越)**:
+  - 接入 **Astro 5+ 原生 `astro:i18n`** 路由：`/` (中文), `/en/` (English), `/ja/` (日本語), `/ko/` (한국어), `/vi/` (Tiếng Việt)。
+  - **智能访客探测**：首访自动匹配浏览器/操作系统语言，平滑导向目标语种，并提供 `localStorage` 记忆。
+  - **一键多语言海报与分享**：海报弹窗与卡片支持 5 国语言瞬间切换，自动适配西文/日韩衬线字体排版，右下角二维码精准溯源至对应语言独立页面。
+  - **Google Gemini Pro 翻译流水线**：内置 `npm run translate` 与 `npm run new` 自动化文学级翻译，自动为金句补齐 4 国高质量译文与出处。
 - 🤖 **2026 AI-Ready & GEO 检索优化**:
   - 严格遵循 `/llms.txt`（精炼摘要）与 `/llms-full.txt`（全文语料）规范，便于 ChatGPT、Perplexity、Claude 等 AI 搜索引擎精准抓取与检索。
-  - 自动注入 `schema.org/SocialMediaPosting` 结构化数据 (JSON-LD)。
+  - 自动注入 `schema.org/SocialMediaPosting` 结构化数据 (JSON-LD) 与多语言 `hreflang` 标签。
   - 纯静态开放 JSON API (`/api/memos.json`) 与 RSS 2.0 订阅源 (`/rss.xml`)。
 - 🔄 **自动同步至 Twitter (X)**:
   - 提交 Markdown 到 GitHub，GitHub Actions 自动构建部署并调用 Twitter 官方 Free API 秒级发推（完全免费）。
@@ -44,7 +49,7 @@ npm run dev
 ```
 打开浏览器访问: `http://localhost:4321`
 
-### 2. 交互式快速发布新金句
+### 2. 交互式快速发布新金句 (支持 Gemini 自动翻译)
 无需手动手写 Frontmatter，运行一行命令交互式录入：
 ```bash
 npm run new
@@ -56,9 +61,15 @@ npm run new
 4. **心情表情 (Mood)**（如：💡, 🎲, ☕, 🌌）
 5. **是否置顶 (Pinned)**
 
-脚本将自动在 `src/content/memos/` 生成标准 Markdown 文件。
+若在 `.env` 中配置了 `GEMINI_API_KEY`，脚本会在录入后**自动调用 Gemini Pro 生成英、日、韩、越四国译文**并存盘！
 
-### 3. 本地构建与产物预览
+### 3. 一键批量补齐历史多语言翻译
+为历史现存的金句自动补全多语言翻译：
+```bash
+npm run translate
+```
+
+### 4. 本地构建与产物预览
 ```bash
 # 静态全量构建
 npm run build

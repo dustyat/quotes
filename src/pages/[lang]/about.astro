@@ -1,0 +1,291 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { SITE_CONFIG } from '@/utils/config';
+import { type Locale, useTranslations } from '@/i18n/ui';
+
+export function getStaticPaths() {
+  return [
+    { params: { lang: 'en' } },
+    { params: { lang: 'ja' } },
+    { params: { lang: 'ko' } },
+    { params: { lang: 'vi' } },
+  ];
+}
+
+const { lang } = Astro.params as { lang: Locale };
+const t = useTranslations(lang);
+
+const ABOUT_CONTENT: Record<string, {
+  title: string;
+  introTitle: string;
+  introP1: string;
+  introP2: string;
+  featuresTitle: string;
+  features: Array<{ icon: string; title: string; desc: string }>;
+  linksTitle: string;
+}> = {
+  en: {
+    title: 'About Quotes',
+    introTitle: 'Our Purpose',
+    introP1: 'In an era of fragmented attention and algorithmic noise, Quotes was created as a quiet, pure sanctuary of enduring human wisdom across history.',
+    introP2: 'Here, we do not produce lengthy texts. We distill only timeless thoughts, mental models, and epiphany moments from philosophers, thinkers, and classic literature.',
+    featuresTitle: 'Core Features & Craftsmanship',
+    features: [
+      { icon: '⚡', title: 'Static & Fast', desc: 'Built on Astro 5+ SSG, 0 runtime JS bloat, sub-second edge distribution on Cloudflare global CDN.' },
+      { icon: '🎲', title: 'Inspiration Shuffle', desc: 'Top featured random quote with instant client-side reshuffle without page reload.' },
+      { icon: '🌿', title: 'Minimal Timeline', desc: 'Borderless transparent timeline layout with 1px subtle line and mood emojis aligned to the first line.' },
+      { icon: '🖼️', title: 'Quote Poster Engine', desc: 'Client-side Canvas rendering with multi-language typography and monochrome QR code for easy source traceability.' },
+      { icon: '📤', title: 'Global Social Sharing', desc: 'Seamless 1-click sharing to X (Twitter) with quote snippets, Facebook, and native mobile system share sheet.' },
+      { icon: '🤖', title: 'AI-Ready & Open', desc: 'Full compliance with /llms.txt, Schema.org semantic data, static JSON API, and RSS 2.0 feed.' },
+    ],
+    linksTitle: 'Subscription & Open Ecosystem',
+  },
+  ja: {
+    title: 'Quotes について',
+    introTitle: '空間の原点',
+    introP1: '情報過多とアルゴリズムの喧騒に満ちた現代において、Quotes は時代を超えて輝き続ける賢者の知恵を静かに蓄積するタイムラインとして誕生しました。',
+    introP2: '冗長な解説は排し、先人、哲学者、古典籍から抽出された深遠な言葉と思考モデルだけを純粋にお届けします。',
+    featuresTitle: '核心的特徴と美学',
+    features: [
+      { icon: '⚡', title: '純静的・超高速', desc: '最新の Astro 5+ 静的レンダリングにより、ゼロランタイムJSで瞬時に表示。世界規模のエッジCDNで配信。' },
+      { icon: '🎲', title: 'インスピレーション散策', desc: 'トップのランダム名言カードは、ページ再読み込みなしで瞬時にシャッフル可能。' },
+      { icon: '🌿', title: '極薄タイムライン', desc: '余計な境界線を削ぎ落とし、1pxの極細ラインと気分絵文字が本文先頭行に美しく揃うミニマル設計。' },
+      { icon: '🖼️', title: '名言ポスターエンジン', desc: '純フロントエンドのCanvas描画、多言語明朝体フォント、白黒反転対応QRコードで原文を追跡可能。' },
+      { icon: '📤', title: 'SNSシームレス共有', desc: 'X（Twitter）、Facebookへのワンクリック投稿や、スマホのネイティブ共有シート呼び出しに対応。' },
+      { icon: '🤖', title: 'AI対応・オープン性', desc: '/llms.txt や Schema.org 構造化データ、オープンJSON API、RSS 2.0 に完全対応。' },
+    ],
+    linksTitle: '購読とオープンエコシステム',
+  },
+  ko: {
+    title: 'Quotes 소개',
+    introTitle: '공간의 취지',
+    introP1: '정보의 홍수와 알고리즘의 소음 속에서, Quotes 는 시대를 초월하는 인류의 지혜를 담는 조용하고 순수한 타임라인 공간입니다.',
+    introP2: '장황한 글을 지양하고, 현자와 철학자, 고전 문학에서 전해져 내려오는 찬란한 통찰과 생각 모델만을 정갈하게 기록합니다.',
+    featuresTitle: '핵심 기능과 미학',
+    features: [
+      { icon: '⚡', title: '순수 정적 초고속 생성', desc: 'Astro 5+ 아키텍처 기반으로 런타임 JS 부담 없이 글로벌 엣지 CDN에서 초고속 로딩을 제공합니다.' },
+      { icon: '🎲', title: '영감 산책 & 셔플', desc: '새로고침 없이 클라이언트에서 즉시 전환되는 랜덤 명언 카드 셔플 기능.' },
+      { icon: '🌿', title: '정갈한 미니멀 타임라인', desc: '군더더기 없는 1px 미세 라인과 기분 이모지가 첫 줄 텍스트와 정밀하게 수평 정렬됩니다.' },
+      { icon: '🖼️', title: '명언 포스터 생성 엔진', desc: '캔버스 기반으로 폰트와 여백이 최적화된 포스터를 생성하며, 흑백 모노 QR 코드로 원문 추적이 가능합니다.' },
+      { icon: '📤', title: '다양한 소셜 공유', desc: 'X (트위터), 페이스북 공유 및 모바일 네이티브 공유 시트를 완벽 지원합니다.' },
+      { icon: '🤖', title: 'AI-Ready & 오픈 생태계', desc: '/llms.txt 규격 및 Schema.org 구조화 데이터, 정적 JSON API 및 RSS 2.0 피드를 제공합니다.' },
+    ],
+    linksTitle: '구독 및 오픈 인터페이스',
+  },
+  vi: {
+    title: 'Giới thiệu Quotes',
+    introTitle: 'Ý tưởng khởi nguồn',
+    introP1: 'Trong kỷ nguyên của thông tin rời rạc và tiếng ồn thuật toán, Quotes ra đời như một không gian tĩnh lặng, lưu giữ những viên ngọc trí tuệ nhân loại trường tồn cùng thời gian.',
+    introP2: 'Chúng tôi không tạo ra những bài viết dài dòng, chỉ đọng lại những câu danh ngôn, tư tưởng triết học và mô hình tư duy sâu sắc từ các bậc hiền triết và danh tác kinh điển.',
+    featuresTitle: 'Đặc tính & Thẩm mỹ',
+    features: [
+      { icon: '⚡', title: 'Tĩnh & Siêu tốc', desc: 'Kiến trúc Astro 5+ SSG, 0 gánh nặng JS runtime, phân phối tức thì qua mạng lưới CDN toàn cầu của Cloudflare.' },
+      { icon: '🎲', title: 'Ngẫu nhiên & Đổi câu', desc: 'Thẻ danh ngôn ngẫu nhiên trên đầu trang cho phép đổi câu tức thì mà không cần tải lại trang.' },
+      { icon: '🌿', title: 'Dòng thời gian tối giản', desc: 'Loại bỏ hoàn toàn đường viền rườm rà, đường trục 1px thanh mảnh, biểu tượng tâm trạng căn chỉnh chính xác với dòng đầu.' },
+      { icon: '🖼️', title: 'Tạo áp phích danh ngôn', desc: 'Vẽ Canvas thuần frontend, tối ưu dấu thanh tiếng Việt, tích hợp mã QR đơn sắc để độc giả quét mã truy nguồn gốc.' },
+      { icon: '📤', title: 'Chia sẻ mạng xã hội', desc: 'Chia sẻ 1 chạm lên X (Twitter), Facebook và tự động gọi bảng chia sẻ gốc trên điện thoại di động.' },
+      { icon: '🤖', title: 'Sẵn sàng cho AI & Mở', desc: 'Chuẩn hoá theo /llms.txt, dữ liệu cấu trúc Schema.org, cung cấp API JSON tĩnh và nguồn cấp RSS 2.0.' },
+    ],
+    linksTitle: 'Đăng ký & Cổng kết nối mở',
+  },
+};
+
+const content = ABOUT_CONTENT[lang] || ABOUT_CONTENT.en;
+---
+
+<BaseLayout 
+  title={content.title} 
+  description={t('site.description')}
+  locale={lang}
+>
+  <div class="about-page">
+    <div class="about-hero">
+      <h2 class="about-title">{SITE_CONFIG.title}</h2>
+      <p class="about-desc">{t('site.description')}</p>
+    </div>
+
+    <div class="about-section">
+      <h3 class="section-title">{content.introTitle}</h3>
+      <p class="section-text">{content.introP1}</p>
+      <p class="section-text">{content.introP2}</p>
+    </div>
+
+    <div class="about-section">
+      <h3 class="section-title">{content.featuresTitle}</h3>
+      <div class="tech-features-grid">
+        {content.features.map(f => (
+          <div class="feature-card">
+            <div class="feature-icon">{f.icon}</div>
+            <div class="feature-content">
+              <h4 class="feature-title">{f.title}</h4>
+              <p class="feature-desc">{f.desc}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <div class="about-section">
+      <h3 class="section-title">{content.linksTitle}</h3>
+      <div class="open-links-grid">
+        <a href="/rss.xml" target="_blank" class="open-link-card">
+          <svg class="open-link-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11a9 9 0 0 1 9 9"></path><path d="M4 4a16 16 0 0 1 16 16"></path><circle cx="5" cy="19" r="1"></circle></svg>
+          <div>
+            <div class="link-title">RSS 2.0</div>
+            <div class="link-sub">Feed / Reader</div>
+          </div>
+        </a>
+
+        <a href="/llms.txt" target="_blank" class="open-link-card">
+          <svg class="open-link-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"></path><rect width="16" height="12" x="4" y="8" rx="2"></rect><path d="M2 14h2"></path><path d="M20 14h2"></path></svg>
+          <div>
+            <div class="link-title">AI / llms.txt</div>
+            <div class="link-sub">LLM Semantic Index</div>
+          </div>
+        </a>
+
+        <a href="/api/memos.json" target="_blank" class="open-link-card">
+          <svg class="open-link-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+          <div>
+            <div class="link-title">JSON API</div>
+            <div class="link-sub">Static REST Endpoint</div>
+          </div>
+        </a>
+
+        <a href="https://github.com/dustyat/quotes" target="_blank" rel="noopener noreferrer" class="open-link-card">
+          <svg class="open-link-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+          <div>
+            <div class="link-title">GitHub</div>
+            <div class="link-sub">Open Source</div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .about-page {
+    padding: 24px 0 40px 0;
+  }
+  .about-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding-bottom: 28px;
+    border-bottom: 1px solid var(--border-color);
+  }
+  .about-title {
+    font-size: 1.875rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+  .about-desc {
+    font-size: 0.9375rem;
+    color: var(--text-secondary);
+    max-width: 520px;
+    margin-top: 12px;
+    line-height: 1.6;
+  }
+
+  .about-section {
+    padding-top: 28px;
+  }
+  .section-title {
+    font-size: 1.0625rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+  }
+  .section-text {
+    font-size: 0.9375rem;
+    color: var(--text-secondary);
+    line-height: 1.75;
+    margin-bottom: 12px;
+  }
+
+  .tech-features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px 24px;
+    margin-top: 14px;
+  }
+  .feature-card {
+    display: flex;
+    gap: 12px;
+    padding: 4px 0;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+  }
+  .feature-icon {
+    font-size: 1.25rem;
+    line-height: 1.3;
+    flex-shrink: 0;
+  }
+  .feature-title {
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+  }
+  .feature-desc {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+
+  .open-links-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
+    margin-top: 14px;
+  }
+  .open-link-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+  }
+  .open-link-card:hover {
+    opacity: 0.75;
+    transform: translateX(3px);
+    background: transparent;
+  }
+  .open-link-icon {
+    color: var(--text-muted);
+    flex-shrink: 0;
+    transition: color 0.15s ease;
+  }
+  .open-link-card:hover .open-link-icon {
+    color: var(--text-primary);
+  }
+  .link-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+  .link-sub {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  @media (max-width: 640px) {
+    .tech-features-grid {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+    .open-links-grid {
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+  }
+</style>

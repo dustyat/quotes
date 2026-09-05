@@ -1,0 +1,113 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import QuoteCard from '@/components/QuoteCard.astro';
+import RandomFeaturedQuote from '@/components/RandomFeaturedQuote.astro';
+import { SITE_CONFIG } from '@/utils/config';
+import { type Locale, useTranslations } from '@/i18n/ui';
+
+export function getStaticPaths() {
+  return [
+    { params: { lang: 'en' } },
+    { params: { lang: 'ja' } },
+    { params: { lang: 'ko' } },
+    { params: { lang: 'vi' } },
+  ];
+}
+
+const { lang } = Astro.params as { lang: Locale };
+const t = useTranslations(lang);
+
+const allMemos = await getCollection('memos');
+const sortedMemos = allMemos.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+---
+
+<BaseLayout title={SITE_CONFIG.title} description={t('site.description')} locale={lang}>
+  <!-- 顶部极简介绍 -->
+  <section class="feed-intro">
+    <div class="intro-headline">
+      <div class="headline-brand">
+        <h1 class="headline-title">{SITE_CONFIG.title}</h1>
+      </div>
+    </div>
+  </section>
+
+  <!-- 金句时间轴流 -->
+  <section class="quotes-stream">
+    {allMemos.length > 0 && <RandomFeaturedQuote memos={allMemos} isFirst={true} locale={lang} />}
+
+    {sortedMemos.length === 0 ? (
+      <div class="empty-state">
+        <p>{t('feed.empty')}</p>
+      </div>
+    ) : (
+      sortedMemos.map(async (memo, index) => {
+        const { Content } = await render(memo);
+        const memoId = memo.id.replace(/\.md$/, '');
+        return (
+          <QuoteCard 
+            id={memoId} 
+            body={memo.body || ''} 
+            data={memo.data}
+            isFirst={false}
+            isLast={index === sortedMemos.length - 1}
+            locale={lang}
+          >
+            <Content />
+          </QuoteCard>
+        );
+      })
+    )}
+  </section>
+</BaseLayout>
+
+<style>
+  .feed-intro {
+    padding: 32px 0 16px 0;
+    margin-bottom: 8px;
+  }
+  .intro-headline {
+    margin-bottom: 0;
+  }
+  .headline-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .headline-title {
+    font-size: 1.875rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+
+  .quotes-stream {
+    display: flex;
+    flex-direction: column;
+    padding-top: 8px;
+  }
+
+  .empty-state {
+    padding: 80px 24px;
+    text-align: center;
+    color: var(--text-muted);
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+  }
+  .empty-state code {
+    background: var(--badge-bg);
+    padding: 4px 8px;
+    border-radius: 4px;
+  }
+
+  @media (max-width: 640px) {
+    .feed-intro {
+      padding: 20px 0 16px 0;
+    }
+    .headline-title {
+      font-size: 1.5rem;
+    }
+  }
+</style>

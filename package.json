@@ -10,6 +10,7 @@
     "preview": "astro preview",
     "astro": "astro",
     "new": "node scripts/new-quote.mjs",
+    "translate": "node scripts/translate-all.mjs",
     "sync:twitter": "node scripts/sync-twitter.mjs",
     "docker:build": "docker build -t quotes .",
     "docker:run": "docker run -d -p 8080:80 --name quotes quotes",

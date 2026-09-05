@@ -38,6 +38,12 @@ jobs:
         run: |
           node scripts/publish-from-issue.mjs
 
+      - name: Auto Translate Quote with Gemini Pro
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          node scripts/translate-all.mjs || true
+
       - name: Commit and push changes
         env:
           MEMO_TITLE: ${{ steps.parse_memo.outputs.memo_title }}

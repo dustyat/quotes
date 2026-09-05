@@ -1,0 +1,217 @@
+---
+import { LOCALES, DEFAULT_LOCALE, type Locale, getLocalizedPath } from '@/i18n/ui';
+
+interface Props {
+  currentLocale?: Locale;
+}
+
+const { currentLocale = DEFAULT_LOCALE } = Astro.props;
+const currentInfo = LOCALES[currentLocale] || LOCALES[DEFAULT_LOCALE];
+const currentPath = Astro.url.pathname;
+---
+
+<div class="lang-picker-wrapper" id="lang-picker-wrapper">
+  <button 
+    id="lang-picker-btn" 
+    class="lang-picker-btn" 
+    aria-label="切换语言 (Language)" 
+    title="切换语言 (Language)"
+    aria-haspopup="true"
+    aria-expanded="false"
+  >
+    <svg class="lang-globe-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"></circle>
+      <line x1="2" y1="12" x2="22" y2="12"></line>
+      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+    </svg>
+    <span class="lang-cur-label">{currentInfo.label}</span>
+  </button>
+
+  <!-- 浮动语言下拉菜单 -->
+  <div class="lang-dropdown" id="lang-dropdown">
+    <div class="lang-menu-list">
+      {Object.entries(LOCALES).map(([code, info]) => {
+        const targetUrl = getLocalizedPath(currentPath, code as Locale);
+        const isActive = code === currentLocale;
+        return (
+          <a 
+            href={targetUrl}
+            class:list={['lang-option-item', { active: isActive }]}
+            data-lang={code}
+          >
+            <span class="option-code">{info.label}</span>
+            <span class="option-name">{info.name}</span>
+            {isActive && (
+              <svg class="option-check-icon" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            )}
+          </a>
+        );
+      })}
+    </div>
+  </div>
+</div>
+
+<style>
+  .lang-picker-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .lang-picker-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    height: 32px;
+    padding: 0 8px;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: var(--radius-full);
+    color: var(--text-secondary);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    user-select: none;
+  }
+
+  .lang-picker-btn:hover {
+    color: var(--text-primary);
+    background: var(--bg-secondary);
+  }
+
+  .lang-globe-icon {
+    opacity: 0.8;
+    flex-shrink: 0;
+  }
+
+  .lang-cur-label {
+    letter-spacing: 0.03em;
+    font-family: var(--font-sans);
+  }
+
+  /* 悬浮菜单 */
+  .lang-dropdown {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    z-index: 1000;
+    min-width: 140px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    padding: 4px;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-4px) scale(0.97);
+    transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
+  }
+
+  .lang-dropdown.is-open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+  }
+
+  .lang-menu-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .lang-option-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    border-radius: var(--radius-sm);
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: background 0.12s ease, color 0.12s ease;
+  }
+
+  .lang-option-item:hover {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+  }
+
+  .lang-option-item.active {
+    color: var(--text-primary);
+    font-weight: 600;
+    background: var(--bg-secondary);
+  }
+
+  .option-code {
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 1px 4px;
+    border-radius: 4px;
+    background: var(--badge-bg);
+    color: var(--badge-text);
+    min-width: 22px;
+    text-align: center;
+  }
+
+  .option-name {
+    flex: 1;
+  }
+
+  .option-check-icon {
+    color: var(--text-primary);
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 640px) {
+    .lang-picker-btn {
+      height: 30px;
+      padding: 0 6px;
+      font-size: 0.75rem;
+    }
+  }
+</style>
+
+<script is:inline>
+  (function() {
+    const wrapper = document.getElementById('lang-picker-wrapper');
+    const btn = document.getElementById('lang-picker-btn');
+    const dropdown = document.getElementById('lang-dropdown');
+    if (!wrapper || !btn || !dropdown) return;
+
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpen = dropdown.classList.contains('is-open');
+      if (isOpen) {
+        dropdown.classList.remove('is-open');
+        btn.setAttribute('aria-expanded', 'false');
+      } else {
+        dropdown.classList.add('is-open');
+        btn.setAttribute('aria-expanded', 'true');
+      }
+    });
+
+    // 点击选项时，记录用户偏好到 localStorage
+    dropdown.addEventListener('click', (e) => {
+      const item = e.target.closest('.lang-option-item');
+      if (item) {
+        const lang = item.getAttribute('data-lang');
+        if (lang) {
+          localStorage.setItem('quotes_preferred_lang', lang);
+        }
+      }
+    });
+
+    // 点击外部自动关闭
+    document.addEventListener('click', (e) => {
+      if (!wrapper.contains(e.target)) {
+        dropdown.classList.remove('is-open');
+        btn.setAttribute('aria-expanded', 'false');
+      }
+    });
+  })();
+</script>

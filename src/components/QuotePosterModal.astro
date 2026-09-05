@@ -1,16 +1,41 @@
 ---
+import { DEFAULT_LOCALE, type Locale, LOCALES, useTranslations } from '@/i18n/ui';
+
+interface Props {
+  locale?: Locale;
+}
+
+const { locale = DEFAULT_LOCALE } = Astro.props;
+const t = useTranslations(locale);
 ---
 
 <div id="poster-modal" class="poster-modal-overlay" aria-hidden="true">
   <div class="poster-modal-container">
     <div class="poster-modal-header">
-      <h3 class="modal-title">生成金句海报</h3>
+      <h3 class="modal-title">{t('poster.title')}</h3>
       <button id="close-poster-btn" class="close-btn" aria-label="关闭">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <line x1="18" y1="6" x2="6" y2="18"></line>
           <line x1="6" y1="6" x2="18" y2="18"></line>
         </svg>
       </button>
+    </div>
+
+    <!-- 多语言海报语种切换栏 -->
+    <div class="poster-lang-selector" id="poster-lang-selector">
+      <span class="lang-selector-label">{t('poster.lang')}:</span>
+      <div class="poster-lang-tabs" id="poster-lang-tabs">
+        {Object.entries(LOCALES).map(([code, info]) => (
+          <button 
+            type="button" 
+            class:list={['poster-lang-tab', { active: code === locale }]} 
+            data-lang={code}
+            title={info.name}
+          >
+            {info.label}
+          </button>
+        ))}
+      </div>
     </div>
 
     <div class="poster-preview-wrapper">
@@ -24,14 +49,14 @@
           <polyline points="7 10 12 15 17 10"></polyline>
           <line x1="12" y1="15" x2="12" y2="3"></line>
         </svg>
-        <span>保存高清海报</span>
+        <span id="download-btn-text">{t('poster.save')}</span>
       </button>
       <button id="copy-poster-btn" class="action-btn">
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
           <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
         </svg>
-        <span>复制图片</span>
+        <span id="copy-btn-text">{t('poster.copyImg')}</span>
       </button>
     </div>
   </div>
@@ -98,85 +123,156 @@
     color: var(--text-muted);
   }
   .close-btn:hover {
-    background: var(--bg-card-hover);
+    background: var(--bg-secondary);
     color: var(--text-primary);
   }
+
+  /* 语种切换标签栏 */
+  .poster-lang-selector {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 18px;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+  }
+  .lang-selector-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+  .poster-lang-tabs {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .poster-lang-tab {
+    padding: 3px 8px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: var(--radius-full);
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .poster-lang-tab:hover {
+    color: var(--text-primary);
+    background: var(--bg-card);
+  }
+  .poster-lang-tab.active {
+    background: var(--text-primary);
+    color: var(--bg-primary);
+  }
+
   .poster-preview-wrapper {
     flex: 1;
-    padding: 24px 16px;
+    overflow-y: auto;
+    padding: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
-    overflow-y: auto;
     background: var(--bg-primary);
   }
   #poster-canvas {
     width: 100%;
-    max-width: 360px;
+    max-width: 380px;
     height: auto;
-    border-radius: 4px;
-    box-shadow: none;
-    border: none;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
   }
   .poster-modal-actions {
     display: flex;
-    justify-content: center;
-    gap: 32px;
-    padding: 16px 20px;
+    gap: 12px;
+    padding: 14px 18px;
     border-top: 1px solid var(--border-color);
-    background: transparent;
+    background: var(--bg-card);
   }
   .action-btn {
-    display: inline-flex;
+    flex: 1;
+    display: flex;
     align-items: center;
     justify-content: center;
     gap: 6px;
-    height: 38px;
-    padding: 0 4px;
-    border-radius: 0;
-    font-size: 0.9375rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    background: transparent;
-    border: none;
+    height: 40px;
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.15s ease;
     cursor: pointer;
-    transition: opacity 0.15s ease, transform 0.15s ease;
   }
-  .action-btn:hover {
-    opacity: 0.7;
-    transform: scale(1.04);
-    background: transparent;
+  #download-poster-btn {
+    background: var(--text-primary);
+    color: var(--bg-primary);
+    border: none;
+  }
+  #download-poster-btn:hover {
+    opacity: 0.9;
+  }
+  #copy-poster-btn {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+  }
+  #copy-poster-btn:hover {
+    background: var(--bg-card-hover);
   }
 </style>
 
-<script>
-  import QRCode from 'qrcode';
+<script is:inline src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 
-  let currentQuoteData: any = null;
+<script is:inline>
+  let currentPosterData = null;
+  let currentPosterLang = 'zh';
 
-  (window as any).openPosterModal = async function(data: any) {
-    currentQuoteData = data;
+  window.openPosterModal = async function(data) {
+    currentPosterData = data;
+    currentPosterLang = data.currentLang || 'zh';
+
     const modal = document.getElementById('poster-modal');
     if (!modal) return;
     modal.classList.add('active');
-    await renderPosterCanvas(data);
+    modal.setAttribute('aria-hidden', 'false');
+
+    // 更新语种激活状态
+    updateActiveLangTab();
+
+    // 绘制海报
+    await renderPoster();
   };
 
-  function closePosterModal() {
-    const modal = document.getElementById('poster-modal');
-    if (modal) modal.classList.remove('active');
+  function updateActiveLangTab() {
+    const tabs = document.querySelectorAll('.poster-lang-tab');
+    tabs.forEach(tab => {
+      const lang = tab.getAttribute('data-lang');
+      if (lang === currentPosterLang) {
+        tab.classList.add('active');
+      } else {
+        tab.classList.remove('active');
+      }
+    });
   }
 
-  document.getElementById('close-poster-btn')?.addEventListener('click', closePosterModal);
-  document.getElementById('poster-modal')?.addEventListener('click', (e) => {
-    if ((e.target as HTMLElement).id === 'poster-modal') closePosterModal();
+  // 监听海报语言切换点击
+  document.getElementById('poster-lang-tabs')?.addEventListener('click', async (e) => {
+    const tab = e.target.closest('.poster-lang-tab');
+    if (!tab || !currentPosterData) return;
+    const lang = tab.getAttribute('data-lang');
+    if (lang && lang !== currentPosterLang) {
+      currentPosterLang = lang;
+      updateActiveLangTab();
+      await renderPoster();
+    }
   });
 
-  async function renderPosterCanvas(data: any) {
-    const canvas = document.getElementById('poster-canvas') as HTMLCanvasElement;
+  async function renderPoster() {
+    if (!currentPosterData) return;
+    const canvas = document.getElementById('poster-canvas');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
+
     const width = 800;
     const height = 1000;
     canvas.width = width;
@@ -184,26 +280,47 @@
 
     const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
 
-    // 背景绘制：纯粹极简底色
+    // 背景绘制
     ctx.fillStyle = isDark ? '#09090b' : '#ffffff';
     ctx.fillRect(0, 0, width, height);
 
-    // 绘制顶部大引号（黑色/白色极简呈现）
+    // 获取对应语言的内容与出处
+    const translations = currentPosterData.translations || {};
+    let contentToDraw = currentPosterData.content || '';
+    let sourceToDraw = currentPosterData.source || '';
+
+    if (currentPosterLang !== 'zh' && translations[currentPosterLang]) {
+      contentToDraw = translations[currentPosterLang].content || contentToDraw;
+      sourceToDraw = translations[currentPosterLang].source || sourceToDraw;
+    }
+
+    // 绘制顶部大引号
     ctx.font = '900 76px "Noto Serif SC", Georgia, serif';
     ctx.fillStyle = isDark ? '#f4f4f5' : '#0f172a';
     ctx.fillText('“', 70, 140);
 
-    // 绘制金句正文
-    ctx.font = '500 34px -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif';
+    // 根据语言自适应最佳字体
+    if (['en', 'vi'].includes(currentPosterLang)) {
+      ctx.font = '500 32px "Playfair Display", "Merriweather", "Georgia", serif';
+    } else if (currentPosterLang === 'ja') {
+      ctx.font = '500 32px "Noto Serif JP", "Shippori Mincho", "Hiragino Mincho ProN", serif';
+    } else if (currentPosterLang === 'ko') {
+      ctx.font = '500 32px "Noto Serif KR", "Nanum Myeongjo", serif';
+    } else {
+      ctx.font = '500 33px -apple-system, BlinkMacSystemFont, "Noto Serif SC", "PingFang SC", sans-serif';
+    }
+
     ctx.fillStyle = isDark ? '#f4f4f5' : '#0f172a';
     
     const maxTextWidth = width - 160;
-    const lineHeight = 58;
+    const lineHeight = 56;
     const startX = 80;
     let startY = 220;
 
-    const cleanText = (data.content || '').replace(/[*#`_]/g, '');
+    const cleanText = (contentToDraw || '').replace(/[*#`_]/g, '');
     const paragraphs = cleanText.split('\n');
+
+    const isWesternWrap = ['en', 'vi'].includes(currentPosterLang);
 
     for (let p = 0; p < paragraphs.length; p++) {
       const paragraph = paragraphs[p].trim();
@@ -211,32 +328,55 @@
         startY += lineHeight * 0.5;
         continue;
       }
-      const chars = paragraph.split('');
-      let line = '';
-      for (let n = 0; n < chars.length; n++) {
-        const testLine = line + chars[n];
-        const metrics = ctx.measureText(testLine);
-        if (metrics.width > maxTextWidth && n > 0) {
-          ctx.fillText(line, startX, startY);
-          line = chars[n];
-          startY += lineHeight;
-        } else {
-          line = testLine;
+
+      if (isWesternWrap) {
+        // 西文与越文按单词断行
+        const words = paragraph.split(/\s+/);
+        let line = '';
+        for (let n = 0; n < words.length; n++) {
+          const testLine = line ? `${line} ${words[n]}` : words[n];
+          const metrics = ctx.measureText(testLine);
+          if (metrics.width > maxTextWidth && line) {
+            ctx.fillText(line, startX, startY);
+            line = words[n];
+            startY += lineHeight;
+          } else {
+            line = testLine;
+          }
         }
-      }
-      if (line) {
-        ctx.fillText(line, startX, startY);
-        startY += lineHeight;
+        if (line) {
+          ctx.fillText(line, startX, startY);
+          startY += lineHeight;
+        }
+      } else {
+        // 汉字、日文等按字符断行
+        const chars = paragraph.split('');
+        let line = '';
+        for (let n = 0; n < chars.length; n++) {
+          const testLine = line + chars[n];
+          const metrics = ctx.measureText(testLine);
+          if (metrics.width > maxTextWidth && n > 0) {
+            ctx.fillText(line, startX, startY);
+            line = chars[n];
+            startY += lineHeight;
+          } else {
+            line = testLine;
+          }
+        }
+        if (line) {
+          ctx.fillText(line, startX, startY);
+          startY += lineHeight;
+        }
       }
     }
 
     // 绘制来源 (Source) - 右对齐
-    if (data.source) {
-      startY += 32;
+    if (sourceToDraw) {
+      startY += 36;
       ctx.font = 'italic 500 24px -apple-system, sans-serif';
       ctx.fillStyle = isDark ? '#a1a1aa' : '#71717a';
       ctx.textAlign = 'right';
-      ctx.fillText(`—— ${data.source}`, width - 80, startY);
+      ctx.fillText(`—— ${sourceToDraw}`, width - 80, startY);
       ctx.textAlign = 'left';
     }
 
@@ -252,25 +392,28 @@
     ctx.lineWidth = 1;
     ctx.stroke();
 
-    // 绘制右侧极简纯色二维码（暗黑下纯白微透 #ffffffd9，浅色下黑色极简 #09090b，不带任何文字）
+    // 绘制右侧极简纯色二维码
     const qrSize = 74;
     const qrX = width - 80 - qrSize;
     const qrY = dividerY + 16;
-    const targetUrl = data.id 
-      ? `${window.location.origin}/memo/${data.id}` 
-      : (data.url || window.location.href);
+    
+    // 根据当前海报语言构建对应的专属 URL
+    const langPrefix = currentPosterLang === 'zh' ? '' : `/${currentPosterLang}`;
+    const targetUrl = currentPosterData.id 
+      ? `${window.location.origin}${langPrefix}/memo/${currentPosterData.id}` 
+      : window.location.href;
 
     const qrDarkColor = isDark ? '#ffffffd9' : '#09090b';
 
     try {
       const tempCanvas = document.createElement('canvas');
       await QRCode.toCanvas(tempCanvas, targetUrl, {
-        width: qrSize * 3, // 高清 3x 保证清晰扫码
+        width: qrSize * 3,
         margin: 0,
         errorCorrectionLevel: 'M',
         color: {
           dark: qrDarkColor,
-          light: '#00000000' // 透明背景
+          light: '#00000000'
         }
       });
       ctx.drawImage(tempCanvas, qrX, qrY, qrSize, qrSize);
@@ -278,7 +421,7 @@
       console.error('Failed to render QR Code', err);
     }
 
-    // 左侧保持 Quotes，不带域名和文字，极简，垂直与二维码居中对齐
+    // 左侧保持 Quotes，极简居中对齐
     ctx.font = '800 28px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
     ctx.fillStyle = isDark ? '#f4f4f5' : '#0f172a';
     ctx.textBaseline = 'middle';
@@ -286,19 +429,33 @@
     ctx.textBaseline = 'alphabetic';
   }
 
+  // 关闭海报
+  const closeModal = () => {
+    const modal = document.getElementById('poster-modal');
+    if (modal) {
+      modal.classList.remove('active');
+      modal.setAttribute('aria-hidden', 'true');
+    }
+  };
+
+  document.getElementById('close-poster-btn')?.addEventListener('click', closeModal);
+  document.getElementById('poster-modal')?.addEventListener('click', (e) => {
+    if (e.target.id === 'poster-modal') closeModal();
+  });
+
   // 下载图片
   document.getElementById('download-poster-btn')?.addEventListener('click', () => {
-    const canvas = document.getElementById('poster-canvas') as HTMLCanvasElement;
+    const canvas = document.getElementById('poster-canvas');
     if (!canvas) return;
     const link = document.createElement('a');
-    link.download = `quote-${Date.now()}.png`;
+    link.download = `quote-${currentPosterLang}-${Date.now()}.png`;
     link.href = canvas.toDataURL('image/png');
     link.click();
   });
 
   // 复制图片
   document.getElementById('copy-poster-btn')?.addEventListener('click', async () => {
-    const canvas = document.getElementById('poster-canvas') as HTMLCanvasElement;
+    const canvas = document.getElementById('poster-canvas');
     if (!canvas) return;
     try {
       canvas.toBlob(async (blob) => {
@@ -309,7 +466,7 @@
         alert('海报已复制到剪贴板！');
       });
     } catch (err) {
-      alert('浏览器暂不支持直接复制图片，请使用“保存高清海报”');
+      alert('浏览器暂不支持直接复制图片，请使用“保存图片”');
     }
   });
 </script>

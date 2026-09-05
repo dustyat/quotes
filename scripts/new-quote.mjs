@@ -62,7 +62,74 @@ date: ${dateStr}
   if (mood.trim()) {
     frontmatter += `mood: "${mood.trim()}"\n`;
   }
-  frontmatter += `likes: 0\n---\n\n`;
+  frontmatter += `likes: 0\n`;
+
+  // 尝试自动进行多语言翻译（如果配置了 GEMINI_API_KEY）
+  let envApiKey = process.env.GEMINI_API_KEY;
+  if (!envApiKey && fs.existsSync('.env')) {
+    const envContent = fs.readFileSync('.env', 'utf8');
+    const match = envContent.match(/GEMINI_API_KEY=(.+)/);
+    if (match) envApiKey = match[1].trim();
+  }
+
+  if (envApiKey) {
+    console.log('\n🌐 正在使用 Gemini Pro 自动翻译为英文、日文、韩文、越南文...');
+    try {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${envApiKey}`;
+      const prompt = `You are an expert literary translator specializing in philosophical quotes, aphorisms, and timeless wisdom.
+Translate the following quote and its source into English (en), Japanese (ja), Korean (ko), and Vietnamese (vi).
+
+Guidelines:
+1. Tone must be philosophical, concise, and aphoristic, matching classic literary book translations.
+2. For authors, thinkers, and book titles, use the canonical recognized translated names in each target language.
+3. For Vietnamese (vi), ensure full and strictly accurate Vietnamese diacritical marks.
+4. Output STRICT JSON format only:
+{
+  "en": { "content": "...", "source": "..." },
+  "ja": { "content": "...", "source": "..." },
+  "ko": { "content": "...", "source": "..." },
+  "vi": { "content": "...", "source": "..." }
+}
+
+Content to translate:
+${content.trim()}
+
+Source to translate:
+${source.trim() || '未知'}`;
+
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: { responseMimeType: 'application/json' }
+        })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (text) {
+          const trans = JSON.parse(text);
+          frontmatter += `translations:\n`;
+          for (const lang of ['en', 'ja', 'ko', 'vi']) {
+            if (trans[lang]) {
+              frontmatter += `  ${lang}:\n`;
+              frontmatter += `    content: ${JSON.stringify(trans[lang].content)}\n`;
+              if (trans[lang].source) {
+                frontmatter += `    source: ${JSON.stringify(trans[lang].source)}\n`;
+              }
+            }
+          }
+          console.log('✅ 多语言翻译成功并已写入！');
+        }
+      }
+    } catch (e) {
+      console.log('⚠️ 自动翻译跳过（可后续运行 npm run translate 补齐）:', e.message);
+    }
+  }
+
+  frontmatter += `---\n\n`;
 
   const fullContent = frontmatter + content.trim() + '\n';
   const filePath = path.join(dirPath, filename);

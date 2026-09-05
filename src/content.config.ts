@@ -16,6 +16,10 @@ const memos = defineCollection({
       avatar: z.string().optional(),
     }).optional(),
     likes: z.number().optional().default(0),
+    translations: z.record(z.string(), z.object({
+      content: z.string(),
+      source: z.string().optional(),
+    })).optional().default({}),
   }),
 });
 

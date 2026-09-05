@@ -3,13 +3,15 @@ interface Props {
   tag: string;
   count?: number;
   isActive?: boolean;
+  prefix?: string;
 }
 
-const { tag, count, isActive = false } = Astro.props;
+const { tag, count, isActive = false, prefix = '' } = Astro.props;
+const targetHref = `${prefix}/tags/${encodeURIComponent(tag)}`;
 ---
 
 <a 
-  href={`/tags/${encodeURIComponent(tag)}`}
+  href={targetHref}
   class:list={['tag-badge', { active: isActive }]}
 >
   <span class="tag-hash">#</span>

@@ -1,0 +1,51 @@
+name: 🌐 Auto Translate Quotes
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/content/memos/**'
+
+concurrency:
+  group: auto-translate-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  translate:
+    name: 🌐 Gemini Translate Quotes
+    # 过滤由 Actions 机器人自动提交的 commit，避免触发无限循环
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Run Auto Translation
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          node scripts/translate-all.mjs
+
+      - name: Commit and push translations
+        run: |
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git add src/content/memos/
+          if git diff --staged --quiet; then
+            echo "✅ 所有金句均已有翻译，无需更新。"
+          else
+            git commit -m "chore(i18n): 自动补齐金句多语言翻译 (Gemini Pro) [skip ci]"
+            git push origin main
+            echo "🎉 自动翻译已提交并推送至 main 分支！"
+          fi

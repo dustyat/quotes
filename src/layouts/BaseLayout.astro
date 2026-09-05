@@ -5,6 +5,7 @@ import JsonLd from '@/components/JsonLd.astro';
 import QuotePosterModal from '@/components/QuotePosterModal.astro';
 import SearchModal from '@/components/SearchModal.astro';
 import SubmitQuoteWidget from '@/components/SubmitQuoteWidget.astro';
+import { DEFAULT_LOCALE, type Locale, LOCALES, getLocalizedPath, useTranslations } from '@/i18n/ui';
 import '@/styles/global.css';
 
 interface Props {
@@ -13,6 +14,7 @@ interface Props {
   type?: 'website' | 'quote';
   datePublished?: string;
   tags?: string[];
+  locale?: Locale;
 }
 
 const {
@@ -21,14 +23,17 @@ const {
   type = 'website',
   datePublished,
   tags = [],
+  locale = DEFAULT_LOCALE,
 } = Astro.props;
 
+const t = useTranslations(locale);
 const canonicalUrl = new URL(Astro.url.pathname, Astro.site || SITE_CONFIG.siteUrl);
 const pageTitle = title === SITE_CONFIG.title ? `${SITE_CONFIG.title} · ${SITE_CONFIG.slogan.replace(/[\“\”]/g, '')}` : `${title} · ${SITE_CONFIG.title}`;
+const htmlLang = locale === 'zh' ? 'zh-CN' : locale;
 ---
 
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang={htmlLang}>
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
@@ -54,6 +59,20 @@ const pageTitle = title === SITE_CONFIG.title ? `${SITE_CONFIG.title} · ${SITE_
   <link rel="alternate" type="application/rss+xml" title={SITE_CONFIG.title} href="/rss.xml" />
   <link rel="alternate" type="text/plain" title="LLMs Semantic Index" href="/llms.txt" />
 
+  <!-- 多语言 hreflang 规范支持 (SEO) -->
+  {Object.keys(LOCALES).map((code) => (
+    <link 
+      rel="alternate" 
+      hreflang={code === 'zh' ? 'zh-CN' : code} 
+      href={new URL(getLocalizedPath(Astro.url.pathname, code as Locale), Astro.site || SITE_CONFIG.siteUrl).toString()} 
+    />
+  ))}
+  <link 
+    rel="alternate" 
+    hreflang="x-default" 
+    href={new URL(getLocalizedPath(Astro.url.pathname, DEFAULT_LOCALE), Astro.site || SITE_CONFIG.siteUrl).toString()} 
+  />
+
   <!-- JSON-LD 结构化数据 -->
   <JsonLd 
     type={type} 
@@ -63,6 +82,35 @@ const pageTitle = title === SITE_CONFIG.title ? `${SITE_CONFIG.title} · ${SITE_
     tags={tags}
     url={canonicalUrl.toString()}
   />
+
+  <!-- 访客浏览器/操作系统语言智能识别与首访平滑路由 -->
+  <script is:inline>
+    (function() {
+      // 仅在根路径 '/' 且用户未曾手动指定语言时进行首次智能重定向
+      const path = window.location.pathname;
+      if (path === '/' || path === '') {
+        const savedLang = localStorage.getItem('quotes_preferred_lang');
+        if (savedLang) {
+          if (savedLang !== 'zh' && ['en', 'ja', 'ko', 'vi'].includes(savedLang)) {
+            window.location.replace('/' + savedLang + '/');
+          }
+          return;
+        }
+
+        const browserLang = (navigator.language || navigator.userLanguage || '').toLowerCase();
+        let targetLang = 'zh';
+        if (browserLang.startsWith('en')) targetLang = 'en';
+        else if (browserLang.startsWith('ja')) targetLang = 'ja';
+        else if (browserLang.startsWith('ko')) targetLang = 'ko';
+        else if (browserLang.startsWith('vi')) targetLang = 'vi';
+
+        if (targetLang !== 'zh') {
+          localStorage.setItem('quotes_preferred_lang', targetLang);
+          window.location.replace('/' + targetLang + '/');
+        }
+      }
+    })();
+  </script>
 
   <!-- 防止暗黑模式闪烁 -->
   <script is:inline>
@@ -80,7 +128,7 @@ const pageTitle = title === SITE_CONFIG.title ? `${SITE_CONFIG.title} · ${SITE_
 </head>
 <body>
   <!-- 居中统一顶部导航 -->
-  <Header />
+  <Header locale={locale} />
 
   <!-- 居中主内容区 -->
   <main class="single-column-layout">
@@ -101,8 +149,8 @@ const pageTitle = title === SITE_CONFIG.title ? `${SITE_CONFIG.title} · ${SITE_
     </div>
   </footer>
 
-  <QuotePosterModal />
-  <SearchModal />
+  <QuotePosterModal locale={locale} />
+  <SearchModal locale={locale} />
   <SubmitQuoteWidget />
 </body>
 </html>
