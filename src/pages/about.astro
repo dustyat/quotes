@@ -25,37 +25,53 @@ import { SITE_CONFIG } from '@/utils/config';
     </div>
 
     <div class="about-section">
-      <h3 class="section-title">技术与开放生态</h3>
+      <h3 class="section-title">核心特性与美学</h3>
       <div class="tech-features-grid">
         <div class="feature-card">
           <div class="feature-icon">⚡</div>
           <div class="feature-content">
             <h4 class="feature-title">纯静态极速生成</h4>
-            <p class="feature-desc">基于最新 Astro 静态渲染架构，纯静态生成，0 冗余客户端 JS，秒级响应，部署于 Cloudflare 全球边缘网络。</p>
+            <p class="feature-desc">基于最新 Astro 5+ 架构静态渲染，0 客户端 JS 运行时负担，秒级首屏响应，全球 CDN 边缘极速分发。</p>
           </div>
         </div>
 
         <div class="feature-card">
-          <div class="feature-icon">✨</div>
+          <div class="feature-icon">🎲</div>
           <div class="feature-content">
-            <h4 class="feature-title">极简现代美学</h4>
-            <p class="feature-desc">去除所有多余边框与色块修饰，强调色统一黑色加粗（暗色自适应纯白），沉浸回归文字本身。</p>
+            <h4 class="feature-title">灵感漫步与随机卡片</h4>
+            <p class="feature-desc">顶部内置精选随机金句卡片，支持客户端毫秒级免刷新「换一换」，在经典思想流中偶遇顿悟。</p>
+          </div>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🌿</div>
+          <div class="feature-content">
+            <h4 class="feature-title">通透极简时间轴</h4>
+            <p class="feature-desc">去除所有多余边框与卡片阴影，1px 细化淡雅轴线，心情表情与首行文字精准水平居中对齐。</p>
           </div>
         </div>
 
         <div class="feature-card">
           <div class="feature-icon">🖼️</div>
           <div class="feature-content">
-            <h4 class="feature-title">纯前端极简海报</h4>
-            <p class="feature-desc">内置纯前端 Canvas 引擎，一键生成无边框极简金句卡片，支持随时保存高清图与直接复制。</p>
+            <h4 class="feature-title">极简金句海报引擎</h4>
+            <p class="feature-desc">内置纯前端 Canvas 引擎，生成极简排版金句图，右下角纯色二维码自适应反色，可直接保存与溯源。</p>
           </div>
         </div>
 
         <div class="feature-card">
-          <div class="feature-icon">🌐</div>
+          <div class="feature-icon">📤</div>
           <div class="feature-content">
-            <h4 class="feature-title">开放生态与协同</h4>
-            <p class="feature-desc">遵循结构化数据标准与 <code>/llms.txt</code> 规范，提供 RSS 与静态 JSON 接口，支持共建投递。</p>
+            <h4 class="feature-title">全端便捷社交分享</h4>
+            <p class="feature-desc">支持一键分享至 X (Twitter) 与 Facebook；移动端优先唤起原生系统分享，PC 端快速复制追溯链接。</p>
+          </div>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🤖</div>
+          <div class="feature-content">
+            <h4 class="feature-title">AI-Ready 与开放生态</h4>
+            <p class="feature-desc">遵循 <code>/llms.txt</code> 规范与 Schema.org 结构化数据，提供静态 JSON API 与 RSS 2.0 订阅。</p>
           </div>
         </div>
       </div>
@@ -85,6 +101,14 @@ import { SITE_CONFIG } from '@/utils/config';
           <div>
             <div class="link-title">JSON 开放接口</div>
             <div class="link-sub">纯静态 REST 数据端点</div>
+          </div>
+        </a>
+
+        <a href="https://github.com/dustyat/quotes" target="_blank" rel="noopener noreferrer" class="open-link-card">
+          <svg class="open-link-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+          <div>
+            <div class="link-title">GitHub 源码</div>
+            <div class="link-sub">基于 Astro 的开源金句系统</div>
           </div>
         </a>
       </div>
