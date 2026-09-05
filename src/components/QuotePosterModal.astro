@@ -252,7 +252,7 @@
     ctx.lineWidth = 1;
     ctx.stroke();
 
-    // 绘制右侧极简纯色二维码（暗黑下纯白微透，浅色下黑色极简，不带任何文字）
+    // 绘制右侧极简纯色二维码（暗黑下纯白微透 #ffffffd9，浅色下黑色极简 #09090b，不带任何文字）
     const qrSize = 74;
     const qrX = width - 80 - qrSize;
     const qrY = dividerY + 16;
@@ -260,7 +260,7 @@
       ? `${window.location.origin}/memo/${data.id}` 
       : (data.url || window.location.href);
 
-    const qrDarkColor = isDark ? 'rgba(255, 255, 255, 0.85)' : '#09090b';
+    const qrDarkColor = isDark ? '#ffffffd9' : '#09090b';
 
     try {
       const tempCanvas = document.createElement('canvas');
