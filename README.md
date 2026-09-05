@@ -80,34 +80,6 @@ npm run preview
 
 ---
 
-## 🐳 Docker 本地一键容器化部署
-
-本项目已预置基于 **Nginx Alpine** 的极轻量多阶段 Dockerfile（最终镜像体积小于 25MB，内存占用仅约 5MB，带 Gzip 压缩与静态长缓存优化）。
-
-### 方式一：使用 Docker Compose（推荐）
-```bash
-# 一键编译并启动容器
-docker compose up -d --build
-```
-启动后访问：`http://localhost:8080`
-
-### 方式二：使用原生 Docker 命令
-```bash
-# 1. 构建 Docker 镜像
-npm run docker:build
-# 或: docker build -t quotes .
-
-# 2. 运行容器 (映射到 8080 端口)
-npm run docker:run
-# 或: docker run -d -p 8080:80 --name quotes quotes
-```
-停止与清理容器：
-```bash
-docker stop quotes && docker rm quotes
-```
-
----
-
 ## ☁️ 部署至 Cloudflare Pages 教程
 
 本项目已内置全自动化流水线 `.github/workflows/deploy.yml`。

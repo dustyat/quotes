@@ -11,10 +11,7 @@
     "astro": "astro",
     "new": "node scripts/new-quote.mjs",
     "translate": "node scripts/translate-all.mjs",
-    "sync:twitter": "node scripts/sync-twitter.mjs",
-    "docker:build": "docker build -t quotes .",
-    "docker:run": "docker run -d -p 8080:80 --name quotes quotes",
-    "docker:compose": "docker compose up -d --build"
+    "sync:twitter": "node scripts/sync-twitter.mjs"
   },
   "dependencies": {
     "@astrojs/rss": "^4.0.11",
