@@ -595,12 +595,12 @@ const hasTranslations = translations && Object.keys(translations).length > 0;
 
     // 全局事件委托处理卡片交互
     document.addEventListener('click', (e) => {
-      // 0. 卡片内多语言快捷切换
+      // 0. 卡片内多语言快捷切换胶囊
       const langPill = e.target.closest('.card-lang-pill');
       if (langPill) {
-        e.preventDefault();
         const row = langPill.closest('.timeline-row');
-        if (!row) return;
+        if (!row || row.classList.contains('random-featured-row')) return;
+        e.preventDefault();
         const targetLang = langPill.getAttribute('data-lang') || 'zh';
         const transScript = row.querySelector('.card-translations-data');
         if (!transScript) return;

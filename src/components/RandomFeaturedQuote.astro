@@ -44,6 +44,8 @@ const quotesData = memos.map((memo) => {
 
   return {
     id: memoId,
+    rawBody: memo.body || '',
+    rawSource: memo.data.source || '',
     html,
     cleanBody,
     plainText,
@@ -141,6 +143,15 @@ const initial = quotesData[0] || null;
               <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
             </svg>
           </button>
+
+          <!-- 随机卡片多语言一键切换胶囊 -->
+          <div class="card-lang-pills" id="random-lang-pills" title="切换语言查看与分享">
+            <button type="button" class:list={['card-lang-pill', { active: locale === 'zh' }]} data-lang="zh" aria-label="中文">中</button>
+            <button type="button" class:list={['card-lang-pill', { active: locale === 'en' }]} data-lang="en" aria-label="English">EN</button>
+            <button type="button" class:list={['card-lang-pill', { active: locale === 'ja' }]} data-lang="ja" aria-label="日本語">日</button>
+            <button type="button" class:list={['card-lang-pill', { active: locale === 'ko' }]} data-lang="ko" aria-label="한국어">韓</button>
+            <button type="button" class:list={['card-lang-pill', { active: locale === 'vi' }]} data-lang="vi" aria-label="Tiếng Việt">越</button>
+          </div>
         </div>
 
         <div class="footer-actions-right">
@@ -203,7 +214,7 @@ const initial = quotesData[0] || null;
   </div>
 )}
 
-<script id="random-quotes-data" type="application/json" set:html={JSON.stringify(quotesData)}></script>
+<script id="random-quotes-data" type="application/json" data-initial-locale={locale} set:html={JSON.stringify(quotesData)}></script>
 
 <!-- 客户端随机与换一换交互逻辑 -->
 <script is:inline>
@@ -219,6 +230,8 @@ const initial = quotesData[0] || null;
     if (!quotesData || quotesData.length === 0) return;
 
     let currentIndex = 0;
+    let currentRandomLang = dataEl.getAttribute('data-initial-locale') || 'zh';
+
     const wrapper = document.getElementById('random-quote-wrapper');
     const bodyEl = document.getElementById('random-quote-body');
     const sourceEl = document.getElementById('random-quote-source');
@@ -230,6 +243,7 @@ const initial = quotesData[0] || null;
     const twitterLink = document.getElementById('random-twitter-link');
     const facebookLink = document.getElementById('random-facebook-link');
     const shareBtn = document.getElementById('random-share-btn');
+    const langPillsContainer = document.getElementById('random-lang-pills');
 
     function renderQuote(index, animated = true) {
       const q = quotesData[index];
@@ -237,46 +251,82 @@ const initial = quotesData[0] || null;
       currentIndex = index;
 
       const updateDom = () => {
-        if (bodyEl) bodyEl.innerHTML = q.html;
+        const trans = q.translations || {};
+        let contentToDisplay = q.rawBody || q.cleanBody || '';
+        let sourceToDisplay = q.rawSource || q.source || '';
+
+        if (currentRandomLang !== 'zh' && trans[currentRandomLang]) {
+          contentToDisplay = trans[currentRandomLang].content || contentToDisplay;
+          sourceToDisplay = trans[currentRandomLang].source || sourceToDisplay;
+        }
+
+        const cleanBody = contentToDisplay.replace(/[*#`_]/g, '').trim();
+        const plainText = contentToDisplay.replace(/[\n#*`_]/g, ' ').trim();
+
+        // 简易 Markdown 转 HTML（段落与加粗）
+        const html = contentToDisplay
+          .trim()
+          .split(/\n\n+/)
+          .map((p) => '<p>' + p.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') + '</p>')
+          .join('');
+
+        if (bodyEl) bodyEl.innerHTML = html;
         if (sourceEl && sourceTextEl) {
-          if (q.source) {
-            sourceTextEl.textContent = q.source;
+          if (sourceToDisplay) {
+            sourceTextEl.textContent = sourceToDisplay;
             sourceEl.style.display = '';
           } else {
             sourceEl.style.display = 'none';
           }
         }
 
+        // 更新多语言药丸高亮
+        if (langPillsContainer) {
+          const pills = langPillsContainer.querySelectorAll('.card-lang-pill');
+          pills.forEach((p) => {
+            if (p.getAttribute('data-lang') === currentRandomLang) {
+              p.classList.add('active');
+            } else {
+              p.classList.remove('active');
+            }
+          });
+        }
+
         // 更新海报、复制与外链数据
         if (posterBtn) {
-          posterBtn.setAttribute('data-content', q.cleanBody);
-          posterBtn.setAttribute('data-source', q.source);
+          posterBtn.setAttribute('data-content', cleanBody);
+          posterBtn.setAttribute('data-source', sourceToDisplay);
           posterBtn.setAttribute('data-date', q.formattedDate);
           posterBtn.setAttribute('data-id', q.id);
-          posterBtn.setAttribute('data-cur-lang', '${locale}');
+          posterBtn.setAttribute('data-cur-lang', currentRandomLang);
           posterBtn.setAttribute('data-translations', JSON.stringify(q.translations || {}));
         }
 
         if (copyBtn) {
-          copyBtn.setAttribute('data-text', q.cleanBody);
+          copyBtn.setAttribute('data-text', cleanBody);
         }
 
-        const origin = typeof window !== 'undefined' ? window.location.origin : SITE_CONFIG.siteUrl;
+        const origin = window.location.origin;
+        const langPrefix = currentRandomLang === 'zh' ? '' : '/' + currentRandomLang;
+        const targetPath = langPrefix + '/memo/' + q.id;
+        const shareUrl = origin + targetPath;
+        const sourcePart = sourceToDisplay ? '\n\n—— ' + sourceToDisplay : '';
+        const tweetText = '“' + plainText.slice(0, 110) + (plainText.length > 110 ? '...' : '') + '”' + sourcePart + '\n\n— via Quotes';
 
         if (twitterLink) {
-          twitterLink.setAttribute('data-text', q.tweetText);
-          twitterLink.setAttribute('data-path', q.url);
-          twitterLink.href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(q.tweetText)}&url=${encodeURIComponent(origin + q.url)}`;
+          twitterLink.setAttribute('data-text', tweetText);
+          twitterLink.setAttribute('data-path', targetPath);
+          twitterLink.href = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(tweetText) + '&url=' + encodeURIComponent(shareUrl);
         }
 
         if (facebookLink) {
-          facebookLink.setAttribute('data-path', q.url);
-          facebookLink.href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(origin + q.url)}`;
+          facebookLink.setAttribute('data-path', targetPath);
+          facebookLink.href = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(shareUrl);
         }
 
         if (shareBtn) {
-          shareBtn.setAttribute('data-path', q.url);
-          shareBtn.setAttribute('data-title', q.cleanBody.slice(0, 60));
+          shareBtn.setAttribute('data-path', targetPath);
+          shareBtn.setAttribute('data-title', cleanBody.slice(0, 60));
         }
       };
 
@@ -316,6 +366,19 @@ const initial = quotesData[0] || null;
       }
 
       renderQuote(nextIndex, true);
+    }
+
+    // 监听随机卡片上的语言胶囊点击
+    if (langPillsContainer) {
+      langPillsContainer.addEventListener('click', function(e) {
+        const pill = e.target.closest('.card-lang-pill');
+        if (!pill) return;
+        e.preventDefault();
+        const targetLang = pill.getAttribute('data-lang') || 'zh';
+        if (targetLang === currentRandomLang) return;
+        currentRandomLang = targetLang;
+        renderQuote(currentIndex, false);
+      });
     }
 
     // 页面初次加载时随机挑一条
@@ -634,6 +697,37 @@ const initial = quotesData[0] || null;
   }
   .share-link-btn.copied .share-copied-icon {
     display: inline-block !important;
+  }
+
+  /* 随机卡片内多语言快捷切换胶囊 */
+  .card-lang-pills {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    margin-left: 6px;
+    padding: 2px 4px;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-full);
+  }
+  .card-lang-pill {
+    padding: 1px 6px;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    border-radius: var(--radius-full);
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    line-height: 1.4;
+    transition: all 0.15s ease;
+  }
+  .card-lang-pill:hover {
+    color: var(--text-primary);
+  }
+  .card-lang-pill.active {
+    background: var(--bg-card);
+    color: var(--text-primary);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.06);
   }
 
   @media (max-width: 640px) {
