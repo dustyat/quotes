@@ -3,6 +3,7 @@ import { SITE_CONFIG } from '@/utils/config';
 import Header from '@/components/Header.astro';
 import JsonLd from '@/components/JsonLd.astro';
 import QuotePosterModal from '@/components/QuotePosterModal.astro';
+import WeChatShareModal from '@/components/WeChatShareModal.astro';
 import SearchModal from '@/components/SearchModal.astro';
 import SubmitQuoteWidget from '@/components/SubmitQuoteWidget.astro';
 import '@/styles/global.css';
@@ -102,6 +103,7 @@ const pageTitle = title === SITE_CONFIG.title ? `${SITE_CONFIG.title} · ${SITE_
   </footer>
 
   <QuotePosterModal />
+  <WeChatShareModal />
   <SearchModal />
   <SubmitQuoteWidget />
 </body>
