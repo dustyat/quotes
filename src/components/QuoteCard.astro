@@ -23,7 +23,12 @@ const fullDate = formatFullDate(data.date);
 const plainText = body.replace(/[\n#*`_]/g, ' ').trim();
 const cleanBody = body.replace(/[*#`_]/g, '').trim();
 
-const shareTweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(`“${plainText.slice(0, 200)}”\n\n— via ${SITE_CONFIG.title}`)}`;
+// 构建 Twitter/X 分享内容：金句正文 + 来源出处 + 平台落款 + 原文链接
+const sourcePart = data.source ? `\n\n—— ${data.source}` : '';
+const tweetText = `“${plainText.slice(0, 110)}${plainText.length > 110 ? '...' : ''}”${sourcePart}\n\n— via ${SITE_CONFIG.title}`;
+const memoPath = `/memo/${id}`;
+const defaultShareUrl = `${SITE_CONFIG.siteUrl}${memoPath}`;
+const shareTweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}&url=${encodeURIComponent(defaultShareUrl)}`;
 ---
 
 <div class:list={['timeline-row', { pinned: data.pinned, 'is-first': isFirst, 'is-last': isLast }]} data-id={id}>
@@ -105,7 +110,15 @@ const shareTweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponen
 
       <div class="footer-actions-right">
         <!-- Twitter 分享 -->
-        <a href={shareTweetUrl} target="_blank" rel="noopener noreferrer" class="icon-link twitter-link" title="在 Twitter 分享">
+        <a 
+          href={shareTweetUrl} 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          class="icon-link twitter-link" 
+          data-text={tweetText}
+          data-path={memoPath}
+          title="在 Twitter 分享"
+        >
           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
             <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
           </svg>
@@ -471,6 +484,19 @@ const shareTweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponen
         } else if (text) {
           fallbackCopy(text, copyBtn, onCopied);
         }
+        return;
+      }
+
+      // 3. Twitter (X) 分享 - 动态使用用户当前访问的真实域名拼接金句原文链接
+      const twitterLink = e.target.closest('.twitter-link');
+      if (twitterLink) {
+        e.preventDefault();
+        const text = twitterLink.getAttribute('data-text') || '';
+        const path = twitterLink.getAttribute('data-path') || '';
+        const origin = window.location.origin;
+        const targetUrl = path ? `${origin}${path}` : window.location.href;
+        const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(targetUrl)}`;
+        window.open(shareUrl, '_blank', 'noopener,noreferrer');
         return;
       }
     });

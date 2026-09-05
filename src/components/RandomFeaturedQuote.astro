@@ -22,18 +22,24 @@ const quotesData = memos.map((memo) => {
     .map((p: string) => `<p>${p.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}</p>`)
     .join('');
 
+  const sourcePart = memo.data.source ? `\n\n—— ${memo.data.source}` : '';
+  const tweetText = `“${plainText.slice(0, 110)}${plainText.length > 110 ? '...' : ''}”${sourcePart}\n\n— via ${SITE_CONFIG.title}`;
+  const memoPath = `/memo/${memoId}`;
+  const defaultShareUrl = `${SITE_CONFIG.siteUrl}${memoPath}`;
+
   return {
     id: memoId,
     html,
     cleanBody,
     plainText,
+    tweetText,
     source: memo.data.source || '',
     mood: memo.data.mood || '💡',
     date: memo.data.date.toISOString(),
     formattedDate: formatFullDate(memo.data.date),
     relativeTime: formatRelativeTime(memo.data.date),
-    url: `/memo/${memoId}`,
-    twitterUrl: `https://twitter.com/intent/tweet?text=${encodeURIComponent(`“${plainText.slice(0, 200)}”\n\n— via ${SITE_CONFIG.title}`)}`,
+    url: memoPath,
+    twitterUrl: `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}&url=${encodeURIComponent(defaultShareUrl)}`,
   };
 });
 
@@ -126,6 +132,8 @@ const initial = quotesData[0] || null;
             target="_blank" 
             rel="noopener noreferrer" 
             class="icon-link twitter-link" 
+            data-text={initial.tweetText}
+            data-path={initial.url}
             title="在 Twitter 分享"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
@@ -207,7 +215,10 @@ const initial = quotesData[0] || null;
         }
 
         if (twitterLink) {
-          twitterLink.href = q.twitterUrl;
+          twitterLink.setAttribute('data-text', q.tweetText);
+          twitterLink.setAttribute('data-path', q.url);
+          const origin = typeof window !== 'undefined' ? window.location.origin : SITE_CONFIG.siteUrl;
+          twitterLink.href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(q.tweetText)}&url=${encodeURIComponent(origin + q.url)}`;
         }
 
         if (memoLink) {
