@@ -25,7 +25,7 @@ export interface SiteConfig {
 export const SITE_CONFIG: SiteConfig = {
   title: "Quotes",
   description: "精选智者格言、经典洞察与思维模型，记录穿越时空的智慧火花。",
-  siteUrl: "https://quotes.example.com",
+  siteUrl: "https://quotes.dustyat.com",
   author: {
     name: "Alex",
     handle: "@quotes",

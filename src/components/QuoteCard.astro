@@ -141,31 +141,22 @@ const shareTweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponen
           </svg>
         </a>
 
-        <!-- 微信朋友圈分享 -->
+        <!-- 通用分享 (移动端呼起原生系统分享，PC端复制原文链接) -->
         <button 
-          class="icon-link wechat-link" 
-          data-path={memoPath}
-          data-title={plainText.slice(0, 60)}
-          title="分享到微信朋友圈"
-          aria-label="分享到微信朋友圈"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M8.691 2.188C3.891 2.188 0 5.478 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 0 1 .213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.294.295a.34.34 0 0 0 .171-.05l1.92-1.077a.71.71 0 0 1 .59-.064c1.026.31 2.146.48 3.327.48.337 0 .668-.018.995-.045-.213-.655-.333-1.353-.333-2.08 0-4.047 3.864-7.332 8.655-7.332.32 0 .633.018.944.043C16.892 4.417 13.088 2.188 8.69 2.188zm-2.48 4.22c.62 0 1.12.5 1.12 1.119 0 .62-.5 1.12-1.12 1.12-.619 0-1.12-.5-1.12-1.12 0-.619.501-1.12 1.12-1.12zm5.58 0c.619 0 1.12.5 1.12 1.119 0 .62-.501 1.12-1.12 1.12-.62 0-1.12-.5-1.12-1.12 0-.619.5-1.12 1.12-1.12zm5.271 4.544c-3.992 0-7.243 2.742-7.243 6.126 0 3.383 3.251 6.125 7.243 6.125.857 0 1.677-.128 2.434-.36a.6.6 0 0 1 .5.053l1.602.9a.28.28 0 0 0 .143.042c.137 0 .245-.11.245-.246 0-.06-.024-.12-.04-.177l-.326-1.236a.49.49 0 0 1 .178-.555c1.528-1.124 2.508-2.784 2.508-4.63 0-3.384-3.251-6.126-7.244-6.126zm-2.07 3.518c.516 0 .933.417.933.933s-.417.933-.933.933c-.515 0-.933-.417-.933-.933s.418-.933.933-.933zm4.653 0c.516 0 .933.417.933.933s-.417.933-.933.933c-.516 0-.933-.417-.933-.933s.417-.933.933-.933z"/>
-          </svg>
-        </button>
-
-        <!-- 复制原文链接 (替换原无意义的外链图标) -->
-        <button 
-          class="icon-link copy-link-btn" 
+          class="icon-link share-link-btn" 
           data-path={memoPath} 
-          title="复制原文链接" 
-          aria-label="复制原文链接"
+          data-title={plainText.slice(0, 60)}
+          title="分享 / 复制链接" 
+          aria-label="分享 / 复制链接"
         >
-          <svg class="link-normal-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
-            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+          <svg class="share-normal-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="18" cy="5" r="3"></circle>
+            <circle cx="6" cy="12" r="3"></circle>
+            <circle cx="18" cy="19" r="3"></circle>
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
           </svg>
-          <svg class="link-copied-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+          <svg class="share-copied-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
             <polyline points="20 6 9 17 4 12"></polyline>
           </svg>
         </button>
@@ -454,21 +445,17 @@ const shareTweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponen
     color: #1877f2;
     background: transparent;
   }
-  .wechat-link:hover {
-    color: #07c160;
-    background: transparent;
-  }
-  .copy-link-btn:hover {
+  .share-link-btn:hover {
     color: var(--text-primary);
     background: transparent;
   }
-  .copy-link-btn.copied {
+  .share-link-btn.copied {
     color: #07c160;
   }
-  .copy-link-btn.copied .link-normal-icon {
+  .share-link-btn.copied .share-normal-icon {
     display: none !important;
   }
-  .copy-link-btn.copied .link-copied-icon {
+  .share-link-btn.copied .share-copied-icon {
     display: inline-block !important;
   }
 
@@ -579,59 +566,50 @@ const shareTweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponen
         return;
       }
 
-      // 5. 微信朋友圈分享
-      const wechatBtn = e.target.closest('.wechat-link');
-      if (wechatBtn) {
+      // 5. 通用分享 (移动端呼起原生系统分享，PC端复制原文链接)
+      const shareBtn = e.target.closest('.share-link-btn');
+      if (shareBtn) {
         e.preventDefault();
-        const path = wechatBtn.getAttribute('data-path') || '';
-        const title = wechatBtn.getAttribute('data-title') || 'Quotes 精选金句';
+        const path = shareBtn.getAttribute('data-path') || '';
+        const title = shareBtn.getAttribute('data-title') || 'Quotes 精选金句';
         const origin = window.location.origin;
         const targetUrl = path ? `${origin}${path}` : window.location.href;
 
-        // 移动端优先尝试调用原生分享
+        const triggerCopyFeedback = () => {
+          shareBtn.classList.add('copied');
+          const originalTitle = shareBtn.getAttribute('title') || '分享 / 复制链接';
+          shareBtn.setAttribute('title', '已复制原文链接！');
+          setTimeout(() => {
+            shareBtn.classList.remove('copied');
+            shareBtn.setAttribute('title', originalTitle);
+          }, 1500);
+        };
+
+        const copyToClipboard = () => {
+          if (navigator.clipboard) {
+            navigator.clipboard.writeText(targetUrl).then(triggerCopyFeedback).catch(() => {
+              fallbackCopy(targetUrl, shareBtn, triggerCopyFeedback);
+            });
+          } else {
+            fallbackCopy(targetUrl, shareBtn, triggerCopyFeedback);
+          }
+        };
+
+        // 手机端优先唤起原生系统分享面板
         if (navigator.share && /mobile|android|iphone|ipad|phone/i.test(navigator.userAgent)) {
           navigator.share({
             title: title,
             url: targetUrl
-          }).catch(() => {
-            if (typeof window.openWeChatShareModal === 'function') {
-              window.openWeChatShareModal(targetUrl);
+          }).catch((err) => {
+            if (err && err.name !== 'AbortError') {
+              copyToClipboard();
             }
           });
           return;
         }
 
-        // 桌面端或无原生分享直接弹出扫码窗口
-        if (typeof window.openWeChatShareModal === 'function') {
-          window.openWeChatShareModal(targetUrl);
-        }
-        return;
-      }
-
-      // 6. 复制原文链接
-      const copyLinkBtn = e.target.closest('.copy-link-btn');
-      if (copyLinkBtn) {
-        const path = copyLinkBtn.getAttribute('data-path') || '';
-        const origin = window.location.origin;
-        const targetUrl = path ? `${origin}${path}` : window.location.href;
-
-        const onCopied = () => {
-          copyLinkBtn.classList.add('copied');
-          const originalTitle = copyLinkBtn.getAttribute('title') || '复制原文链接';
-          copyLinkBtn.setAttribute('title', '已复制原文链接！');
-          setTimeout(() => {
-            copyLinkBtn.classList.remove('copied');
-            copyLinkBtn.setAttribute('title', originalTitle);
-          }, 1500);
-        };
-
-        if (navigator.clipboard) {
-          navigator.clipboard.writeText(targetUrl).then(onCopied).catch(() => {
-            fallbackCopy(targetUrl, copyLinkBtn, onCopied);
-          });
-        } else {
-          fallbackCopy(targetUrl, copyLinkBtn, onCopied);
-        }
+        // PC端/桌面浏览器：直接复制原文链接
+        copyToClipboard();
         return;
       }
     });
