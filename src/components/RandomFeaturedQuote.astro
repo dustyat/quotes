@@ -394,11 +394,11 @@ const initial = quotesData[0] || null;
     display: flex;
     align-items: stretch;
     position: relative;
-    margin-bottom: 28px;
+    margin-bottom: 38px;
   }
 
   .random-featured-row {
-    margin-top: 8px;
+    margin-top: 12px;
   }
 
   /* 最左侧时间轴轨道：移至最左侧，与导航首字垂直对齐 */
@@ -416,7 +416,7 @@ const initial = quotesData[0] || null;
   .track-line {
     position: absolute;
     top: 0;
-    bottom: -28px;
+    bottom: -38px;
     width: 1px;
     background: var(--timeline-line);
     left: 50%;
@@ -493,7 +493,7 @@ const initial = quotesData[0] || null;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 10px;
+    margin-bottom: 18px;
     min-height: 20px;
   }
 
@@ -538,7 +538,7 @@ const initial = quotesData[0] || null;
     background: transparent;
     border: none;
     border-radius: 0;
-    padding: 0 0 10px 0;
+    padding: 0 0 16px 0;
     margin-bottom: 0;
     transition: none;
     box-shadow: none;
@@ -581,7 +581,8 @@ const initial = quotesData[0] || null;
   }
 
   .quote-source {
-    margin-top: 14px;
+    margin-top: 16px;
+    margin-bottom: 8px;
     display: flex;
     align-items: center;
     justify-content: flex-end;
@@ -600,7 +601,7 @@ const initial = quotesData[0] || null;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding-top: 4px;
+    padding-top: 8px;
   }
 
   .footer-actions-left,
@@ -713,7 +714,7 @@ const initial = quotesData[0] || null;
 
   @media (max-width: 640px) {
     .timeline-row {
-      margin-bottom: 20px;
+      margin-bottom: 28px;
     }
     .timeline-track {
       width: 18px;
@@ -726,7 +727,7 @@ const initial = quotesData[0] || null;
       font-size: 1rem;
     }
     .card-header {
-      margin-bottom: 8px;
+      margin-bottom: 12px;
     }
     .random-side-badge {
       font-size: 0.75rem;
@@ -735,11 +736,14 @@ const initial = quotesData[0] || null;
       padding: 0 0 18px 0;
     }
     .quote-main {
-      padding: 0 0 10px 0;
+      padding: 0 0 12px 0;
     }
     .quote-body {
       font-size: 1.0625rem;
       line-height: 1.7;
+    }
+    .card-footer {
+      padding-top: 6px;
     }
     .footer-actions-right {
       gap: 5px;
