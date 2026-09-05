@@ -67,12 +67,7 @@ const initial = quotesData[0] || null;
 
 {initial && (
   <div class:list={['timeline-row', 'random-featured-row', { 'is-first': isFirst }]} id="random-featured-row">
-    <!-- 左侧：文字“随机卡片” -->
-    <div class="timeline-time">
-      <span class="random-side-badge">{t('feed.random')}</span>
-    </div>
-
-    <!-- 中间：时间轴轨道与骰子心情节点 -->
+    <!-- 左侧：时间轴轨道与骰子心情节点（最左侧，与导航首字垂直对齐） -->
     <div class="timeline-track">
       <div class="track-line"></div>
       <div class="track-node" title={t('feed.random')}>
@@ -80,10 +75,12 @@ const initial = quotesData[0] || null;
       </div>
     </div>
 
-    <!-- 右侧：金句卡片主体（与普通卡片完全一致的排列与尺寸） -->
+    <!-- 右侧：金句卡片主体（宽度自然延展） -->
     <article class="quote-card random-quote-card">
-      <!-- 顶部右侧：换一换操作按钮 -->
+      <!-- 顶部信息栏：左侧“随机卡片”，右侧“换一换” -->
       <div class="card-header random-card-header">
+        <span class="random-side-badge">{t('feed.random')}</span>
+
         <button id="shuffle-btn" class="shuffle-action-btn" title={t('feed.shuffle')} aria-label={t('feed.shuffle')}>
           <svg class="shuffle-spin-icon" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
@@ -404,35 +401,13 @@ const initial = quotesData[0] || null;
     margin-top: 8px;
   }
 
-  /* 左侧标签：“随机卡片” - 颜色与时间戳完全一致，左对齐与导航首字对齐 */
-  .timeline-time {
-    width: 124px;
-    margin-top: 7px;
-    text-align: left;
-    flex-shrink: 0;
-  }
-
-  .random-side-badge {
-    font-size: 0.8125rem;
-    font-weight: 500;
-    color: var(--text-muted);
-    background: transparent;
-    padding: 0;
-    border-radius: 0;
-    border: none;
-    white-space: nowrap;
-    letter-spacing: 0.02em;
-    display: inline-block;
-    text-align: left;
-  }
-
-  /* 中间时间轴轨道：增加右侧间距远离卡片 */
+  /* 最左侧时间轴轨道：移至最左侧，与导航首字垂直对齐 */
   .timeline-track {
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 24px;
-    margin: 0 36px 0 14px;
+    width: 22px;
+    margin: 0 20px 0 0;
     flex-shrink: 0;
     position: relative;
   }
@@ -450,19 +425,19 @@ const initial = quotesData[0] || null;
   }
 
   .timeline-row.is-first .track-line {
-    top: 16px;
+    top: 10px;
   }
 
   /* 时间轴节点：与首行文字垂直对齐 */
   .track-node {
     position: relative;
     z-index: 2;
-    margin-top: 5px;
+    margin-top: 1px;
     display: flex;
     align-items: center;
     justify-content: center;
     background: var(--bg-primary);
-    padding: 2px;
+    padding: 2px 0;
   }
 
   .node-mood {
@@ -513,16 +488,21 @@ const initial = quotesData[0] || null;
     transform: none;
   }
 
-  /* 顶部换一换：上移一行位于右上角，完全不影响卡片文字排版 */
-  .random-card-header {
-    position: absolute;
-    top: -26px;
-    right: 0;
-    z-index: 5;
+  /* 顶部栏 (随机标签与换一换) - 与卡片正文保持合适高度与呼吸感 */
+  .card-header {
     display: flex;
     align-items: center;
-    justify-content: flex-end;
-    margin-bottom: 0;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    min-height: 20px;
+  }
+
+  .random-side-badge {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    line-height: 1.4;
+    display: inline-block;
   }
 
   .shuffle-action-btn {
@@ -735,26 +715,21 @@ const initial = quotesData[0] || null;
     .timeline-row {
       margin-bottom: 20px;
     }
-    .timeline-time {
-      width: 72px;
-      margin-top: 5px;
-      text-align: left;
-    }
-    .random-side-badge {
-      font-size: 0.75rem;
-    }
     .timeline-track {
       width: 18px;
-      margin: 0 18px 0 6px;
+      margin: 0 14px 0 0;
     }
     .track-node {
-      margin-top: 4px;
+      margin-top: 1px;
     }
     .node-mood {
       font-size: 1rem;
     }
-    .random-card-header {
-      top: -24px;
+    .card-header {
+      margin-bottom: 8px;
+    }
+    .random-side-badge {
+      font-size: 0.75rem;
     }
     .quote-card {
       padding: 0 0 18px 0;
