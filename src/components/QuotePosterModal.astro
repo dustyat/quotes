@@ -227,12 +227,14 @@
       }
     }
 
-    // 绘制来源 (Source)
+    // 绘制来源 (Source) - 右对齐
     if (data.source) {
       startY += 32;
       ctx.font = 'italic 500 24px -apple-system, sans-serif';
       ctx.fillStyle = isDark ? '#a1a1aa' : '#71717a';
-      ctx.fillText(`—— ${data.source}`, startX, startY);
+      ctx.textAlign = 'right';
+      ctx.fillText(`—— ${data.source}`, width - 80, startY);
+      ctx.textAlign = 'left';
     }
 
     // 绘制底部 Quotes 品牌与日期栏
