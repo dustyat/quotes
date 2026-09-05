@@ -89,6 +89,7 @@ const shareTweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponen
           data-content={cleanBody} 
           data-source={data.source || ''} 
           data-date={fullDate}
+          data-id={id}
           title="生成金句海报"
           aria-label="生成金句海报"
         >
@@ -457,8 +458,9 @@ const shareTweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponen
         const content = posterBtn.getAttribute('data-content') || '';
         const source = posterBtn.getAttribute('data-source') || '';
         const date = posterBtn.getAttribute('data-date') || '';
+        const id = posterBtn.getAttribute('data-id') || '';
         if (typeof window.openPosterModal === 'function') {
-          window.openPosterModal({ content, source, date });
+          window.openPosterModal({ content, source, date, id });
         }
         return;
       }

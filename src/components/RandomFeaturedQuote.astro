@@ -99,6 +99,7 @@ const initial = quotesData[0] || null;
             data-content={initial.cleanBody} 
             data-source={initial.source} 
             data-date={initial.formattedDate}
+            data-id={initial.id}
             title="生成金句海报"
             aria-label="生成金句海报"
           >
@@ -208,6 +209,7 @@ const initial = quotesData[0] || null;
           posterBtn.setAttribute('data-content', q.cleanBody);
           posterBtn.setAttribute('data-source', q.source);
           posterBtn.setAttribute('data-date', q.formattedDate);
+          posterBtn.setAttribute('data-id', q.id);
         }
 
         if (copyBtn) {

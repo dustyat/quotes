@@ -149,15 +149,17 @@
   }
 </style>
 
-<script is:inline>
-  let currentQuoteData = null;
+<script>
+  import QRCode from 'qrcode';
 
-  window.openPosterModal = function(data) {
+  let currentQuoteData: any = null;
+
+  (window as any).openPosterModal = async function(data: any) {
     currentQuoteData = data;
     const modal = document.getElementById('poster-modal');
     if (!modal) return;
     modal.classList.add('active');
-    renderPosterCanvas(data);
+    await renderPosterCanvas(data);
   };
 
   function closePosterModal() {
@@ -167,13 +169,14 @@
 
   document.getElementById('close-poster-btn')?.addEventListener('click', closePosterModal);
   document.getElementById('poster-modal')?.addEventListener('click', (e) => {
-    if (e.target.id === 'poster-modal') closePosterModal();
+    if ((e.target as HTMLElement).id === 'poster-modal') closePosterModal();
   });
 
-  function renderPosterCanvas(data) {
-    const canvas = document.getElementById('poster-canvas');
+  async function renderPosterCanvas(data: any) {
+    const canvas = document.getElementById('poster-canvas') as HTMLCanvasElement;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
+    if (!ctx) return;
     const width = 800;
     const height = 1000;
     canvas.width = width;
@@ -237,45 +240,55 @@
       ctx.textAlign = 'left';
     }
 
-    // 绘制底部 Quotes 品牌与日期栏
+    // 绘制底部 Quotes 品牌与右侧极简纯色二维码
     const bottomY = height - 90;
+    const dividerY = bottomY - 30;
     
     // 分割线
     ctx.beginPath();
-    ctx.moveTo(80, bottomY - 30);
-    ctx.lineTo(width - 80, bottomY - 30);
+    ctx.moveTo(80, dividerY);
+    ctx.lineTo(width - 80, dividerY);
     ctx.strokeStyle = isDark ? '#27272a' : '#f1f5f9';
     ctx.lineWidth = 1;
     ctx.stroke();
 
-    // 站点品牌
-    ctx.font = '800 24px -apple-system, sans-serif';
+    // 绘制右侧极简纯色二维码（暗黑下纯白微透，浅色下黑色极简，不带任何文字）
+    const qrSize = 74;
+    const qrX = width - 80 - qrSize;
+    const qrY = dividerY + 16;
+    const targetUrl = data.id 
+      ? `${window.location.origin}/memo/${data.id}` 
+      : (data.url || window.location.href);
+
+    const qrDarkColor = isDark ? 'rgba(255, 255, 255, 0.85)' : '#09090b';
+
+    try {
+      const tempCanvas = document.createElement('canvas');
+      await QRCode.toCanvas(tempCanvas, targetUrl, {
+        width: qrSize * 3, // 高清 3x 保证清晰扫码
+        margin: 0,
+        errorCorrectionLevel: 'M',
+        color: {
+          dark: qrDarkColor,
+          light: '#00000000' // 透明背景
+        }
+      });
+      ctx.drawImage(tempCanvas, qrX, qrY, qrSize, qrSize);
+    } catch (err) {
+      console.error('Failed to render QR Code', err);
+    }
+
+    // 左侧保持 Quotes，不带域名和文字，极简，垂直与二维码居中对齐
+    ctx.font = '800 28px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
     ctx.fillStyle = isDark ? '#f4f4f5' : '#0f172a';
-    ctx.fillText('Quotes', 80, bottomY + 16);
-
-    // 日期
-    ctx.font = '500 18px -apple-system, sans-serif';
-    ctx.fillStyle = isDark ? '#71717a' : '#94a3b8';
-    ctx.textAlign = 'right';
-    ctx.fillText(data.date || '', width - 80, bottomY + 16);
-    ctx.textAlign = 'left';
-  }
-
-  function roundRect(ctx, x, y, w, h, r) {
-    if (w < 2 * r) r = w / 2;
-    if (h < 2 * r) r = h / 2;
-    ctx.beginPath();
-    ctx.moveTo(x + r, y);
-    ctx.arcTo(x + w, y, x + w, y + h, r);
-    ctx.arcTo(x + w, y + h, x, y + h, r);
-    ctx.arcTo(x, y + h, x, y, r);
-    ctx.arcTo(x, y, x + w, y, r);
-    ctx.closePath();
+    ctx.textBaseline = 'middle';
+    ctx.fillText('Quotes', 80, qrY + qrSize / 2);
+    ctx.textBaseline = 'alphabetic';
   }
 
   // 下载图片
   document.getElementById('download-poster-btn')?.addEventListener('click', () => {
-    const canvas = document.getElementById('poster-canvas');
+    const canvas = document.getElementById('poster-canvas') as HTMLCanvasElement;
     if (!canvas) return;
     const link = document.createElement('a');
     link.download = `quote-${Date.now()}.png`;
@@ -285,7 +298,7 @@
 
   // 复制图片
   document.getElementById('copy-poster-btn')?.addEventListener('click', async () => {
-    const canvas = document.getElementById('poster-canvas');
+    const canvas = document.getElementById('poster-canvas') as HTMLCanvasElement;
     if (!canvas) return;
     try {
       canvas.toBlob(async (blob) => {
