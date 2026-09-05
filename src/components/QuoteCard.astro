@@ -176,7 +176,7 @@ const shareTweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponen
   /* 左侧时间戳 */
   .timeline-time {
     width: 76px;
-    margin-top: 20px;
+    margin-top: 7px;
     text-align: right;
     flex-shrink: 0;
   }
@@ -191,41 +191,41 @@ const shareTweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponen
     text-decoration: underline;
   }
 
-  /* 时间轴轨道与文章留白 */
+  /* 时间轴轨道与文章留白：增大间距远离卡片 */
   .timeline-track {
     display: flex;
     flex-direction: column;
     align-items: center;
     width: 24px;
-    margin: 0 24px 0 12px;
+    margin: 0 36px 0 14px;
     flex-shrink: 0;
     position: relative;
   }
 
-  /* 竖向轴线 */
+  /* 竖向轴线：1px 细线，淡雅低对比度，减少主页面干扰 */
   .track-line {
     position: absolute;
     top: 0;
     bottom: -28px;
-    width: 2px;
-    background: var(--border-color);
+    width: 1px;
+    background: var(--timeline-line);
     left: 50%;
     transform: translateX(-50%);
     z-index: 1;
   }
 
   .timeline-row.is-first .track-line {
-    top: 22px;
+    top: 16px;
   }
   .timeline-row.is-last .track-line {
-    bottom: calc(100% - 22px);
+    bottom: calc(100% - 16px);
   }
 
-  /* 时间轴节点 */
+  /* 时间轴节点：与首行文字垂直对齐 */
   .track-node {
     position: relative;
     z-index: 2;
-    margin-top: 18px;
+    margin-top: 5px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -297,6 +297,12 @@ const shareTweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponen
   .timeline-row.pinned .quote-card {
     border-color: transparent;
     background: transparent;
+  }
+  .timeline-row.pinned .timeline-time {
+    margin-top: 31px;
+  }
+  .timeline-row.pinned .track-node {
+    margin-top: 29px;
   }
 
   /* 顶部栏 (置顶精选等) */
@@ -465,14 +471,23 @@ const shareTweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponen
     }
     .timeline-time {
       width: 66px;
-      margin-top: 17px;
+      margin-top: 5px;
     }
     .post-time {
       font-size: 0.75rem;
     }
     .timeline-track {
       width: 18px;
-      margin: 0 10px 0 4px;
+      margin: 0 18px 0 6px;
+    }
+    .track-node {
+      margin-top: 4px;
+    }
+    .timeline-row.pinned .timeline-time {
+      margin-top: 27px;
+    }
+    .timeline-row.pinned .track-node {
+      margin-top: 26px;
     }
     .node-mood {
       font-size: 1rem;

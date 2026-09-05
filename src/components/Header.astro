@@ -96,7 +96,7 @@ const pathname = Astro.url.pathname.replace(/\/$/, '') || '/';
   .nav-menu {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 28px;
   }
 
   .menu-item {
@@ -150,8 +150,11 @@ const pathname = Astro.url.pathname.replace(/\/$/, '') || '/';
     .nav-container {
       padding: 0 14px;
     }
+    .nav-menu {
+      gap: 18px;
+    }
     .menu-item {
-      padding: 6px 8px;
+      padding: 6px 0;
       font-size: 0.8125rem;
     }
   }

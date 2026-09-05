@@ -317,18 +317,18 @@ const initial = quotesData[0] || null;
     margin-bottom: 28px;
   }
 
-  /* 左侧标签：“随机卡片” */
+  /* 左侧标签：“随机卡片” - 颜色与时间戳完全一致 */
   .timeline-time {
     width: 76px;
-    margin-top: 20px;
+    margin-top: 7px;
     text-align: right;
     flex-shrink: 0;
   }
 
   .random-side-badge {
     font-size: 0.8125rem;
-    font-weight: 700;
-    color: var(--text-primary);
+    font-weight: 500;
+    color: var(--text-muted);
     background: transparent;
     padding: 0;
     border-radius: 0;
@@ -338,42 +338,38 @@ const initial = quotesData[0] || null;
     display: inline-block;
   }
 
-  [data-theme="dark"] .random-side-badge {
-    color: var(--text-primary);
-    background: transparent;
-    border-color: transparent;
-  }
-
-  /* 中间时间轴轨道 */
+  /* 中间时间轴轨道：增加右侧间距远离卡片 */
   .timeline-track {
     display: flex;
     flex-direction: column;
     align-items: center;
     width: 24px;
-    margin: 0 24px 0 12px;
+    margin: 0 36px 0 14px;
     flex-shrink: 0;
     position: relative;
   }
 
+  /* 竖向轴线：1px 细线，淡雅低干扰 */
   .track-line {
     position: absolute;
     top: 0;
     bottom: -28px;
-    width: 2px;
-    background: var(--border-color);
+    width: 1px;
+    background: var(--timeline-line);
     left: 50%;
     transform: translateX(-50%);
     z-index: 1;
   }
 
   .timeline-row.is-first .track-line {
-    top: 22px;
+    top: 16px;
   }
 
+  /* 时间轴节点：与首行文字垂直对齐 */
   .track-node {
     position: relative;
     z-index: 2;
-    margin-top: 18px;
+    margin-top: 5px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -419,6 +415,7 @@ const initial = quotesData[0] || null;
     display: flex;
     flex-direction: column;
     min-width: 0;
+    position: relative;
   }
 
   .quote-card:hover {
@@ -428,12 +425,20 @@ const initial = quotesData[0] || null;
     transform: none;
   }
 
-  /* 顶部换一换行 */
+  /* 顶部换一换：绝对定位在右上角，不挤压首行文字高度 */
   .random-card-header {
+    position: absolute;
+    top: 2px;
+    right: 0;
+    z-index: 5;
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    margin-bottom: 8px;
+    margin-bottom: 0;
+  }
+
+  .random-quote-card .quote-body {
+    padding-right: 76px;
   }
 
   .shuffle-action-btn {
@@ -617,14 +622,17 @@ const initial = quotesData[0] || null;
     }
     .timeline-time {
       width: 66px;
-      margin-top: 17px;
+      margin-top: 5px;
     }
     .random-side-badge {
       font-size: 0.75rem;
     }
     .timeline-track {
       width: 18px;
-      margin: 0 10px 0 4px;
+      margin: 0 18px 0 6px;
+    }
+    .track-node {
+      margin-top: 4px;
     }
     .node-mood {
       font-size: 1rem;
@@ -634,6 +642,9 @@ const initial = quotesData[0] || null;
     }
     .quote-main {
       padding: 0 0 10px 0;
+    }
+    .random-quote-card .quote-body {
+      padding-right: 70px;
     }
     .quote-body {
       font-size: 1.0625rem;
