@@ -155,17 +155,27 @@ export function parseIssueBody(body, createdAt = null, rawTitle = null) {
     finalTags = Array.from(autoTags);
   }
 
-  // 心情表情若留空，根据标签自动匹配或保底 💡
+  // 心情表情若留空，根据标签及内容语义多维度智能推导
   let finalMood = mood;
   if (!finalMood) {
-    if (finalTags.includes('读书笔记')) finalMood = '📚';
-    else if (finalTags.includes('投资')) finalMood = '📈';
-    else if (finalTags.includes('人生哲学')) finalMood = '🌌';
-    else if (finalTags.includes('AI时代')) finalMood = '🤖';
-    else if (finalTags.includes('设计')) finalMood = '🎨';
-    else if (finalTags.includes('行动')) finalMood = '🔥';
-    else if (finalTags.includes('创造力')) finalMood = '✨';
+    const text = `${content} ${source}`.toLowerCase();
+    if (/ai|gpt|模型|智能|机器人|代码/i.test(text) || finalTags.includes('AI时代')) finalMood = '🤖';
+    else if (/设计|极简|简约|建筑/i.test(text) || finalTags.includes('设计') || finalTags.includes('极简主义')) finalMood = '📐';
+    else if (/投资|股票|复利|财富|资本/i.test(text) || finalTags.includes('投资')) finalMood = '📈';
+    else if (/行动|专注|执行|自律/i.test(text) || finalTags.includes('行动')) finalMood = '🎯';
+    else if (/灵感|创造|艺术/i.test(text) || finalTags.includes('创造力')) finalMood = '🎨';
+    else if (/冲突|博弈|牌桌/i.test(text)) finalMood = '♟️';
+    else if (/矛盾|爆发/i.test(text)) finalMood = '⚡';
+    else if (/秩序|稳定|从容/i.test(text)) finalMood = '🏛️';
+    else if (/界限|保护|差评/i.test(text)) finalMood = '🛡️';
+    else if (/船|航行|换船/i.test(text)) finalMood = '⛵';
+    else if (/系统|黄金期/i.test(text)) finalMood = '⚙️';
+    else if (/深渊|前程|高山/i.test(text)) finalMood = '🏔️';
+    else if (/照料|自己|生长/i.test(text)) finalMood = '🌱';
+    else if (finalTags.includes('读书笔记')) finalMood = '📖';
     else if (finalTags.includes('生活')) finalMood = '☕';
+    else if (finalTags.includes('人生哲学')) finalMood = '🕊️';
+    else finalMood = '💡';
   }
 
   // 标题处理：若用户填写则以填写为准，否则根据内容与出处自动生成

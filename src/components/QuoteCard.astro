@@ -2,6 +2,7 @@
 import { SITE_CONFIG } from '@/utils/config';
 import { formatFullDate, formatDateTime } from '@/utils/date';
 import { DEFAULT_LOCALE, type Locale, LOCALES, useTranslations } from '@/i18n/ui';
+import { getQuoteMood } from '@/utils/mood';
 
 interface Props {
   id: string;
@@ -50,6 +51,13 @@ const defaultShareUrl = `${SITE_CONFIG.siteUrl}${memoPath}`;
 const shareTweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}&url=${encodeURIComponent(defaultShareUrl)}`;
 
 const hasTranslations = translations && Object.keys(translations).length > 0;
+
+const displayMood = getQuoteMood({
+  mood: data.mood,
+  tags: data.tags,
+  body,
+  source: data.source,
+});
 ---
 
 <div 
@@ -61,29 +69,20 @@ const hasTranslations = translations && Object.keys(translations).length > 0;
   <!-- 隐藏的完整多语言数据，供客户端即时切换 -->
   <script type="application/json" class="card-translations-data" set:html={JSON.stringify(translations)}></script>
 
-  <!-- 左侧时间轴轨道与节点（最左侧，与导航首字垂直对齐） -->
-  <div class="timeline-track">
-    <div class="track-line"></div>
-    <div class="track-node" title={fullDate}>
-      {data.mood ? (
-        <span class="node-mood" title="记录心情">{data.mood}</span>
-      ) : data.pinned ? (
-        <span class="node-pin-dot"></span>
-      ) : (
-        <span class="node-circle-dot"></span>
-      )}
-    </div>
-  </div>
-
-  <!-- 金句卡片主体（宽度自然延展） -->
+  <!-- 金句卡片主体（宽度自然延展，左对齐） -->
   <article class="quote-card">
     <!-- 卡片顶部：时间戳与置顶标签 -->
     <div class="card-header">
-      <time class="post-time" datetime={memoDate.toISOString()} title={fullDate}>
-        <a href={memoPath} title={fullDate}>
-          <span class="time-date">{dateTime.date}</span><span class="time-sep"> </span><span class="time-hour">{dateTime.time}</span>
-        </a>
-      </time>
+      <div class="card-header-left">
+        <time class="post-time" datetime={memoDate.toISOString()} title={fullDate}>
+          <a href={memoPath} title={fullDate}>
+            <span class="time-date">{dateTime.date}</span><span class="time-sep"> </span><span class="time-hour">{dateTime.time}</span>
+          </a>
+        </time>
+        {displayMood && (
+          <span class="card-mood-badge" title="记录心情">{displayMood}</span>
+        )}
+      </div>
 
       {data.pinned && (
         <span class="pinned-badge">
@@ -212,97 +211,14 @@ const hasTranslations = translations && Object.keys(translations).length > 0;
 
 <style>
   .timeline-row {
-    display: flex;
-    align-items: stretch;
+    display: block;
     position: relative;
     margin-bottom: 38px;
   }
 
-  /* 时间轴轨道：最左侧，与顶部导航首字垂直对齐 */
-  .timeline-track {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 22px;
-    margin: 0 20px 0 0;
-    flex-shrink: 0;
-    position: relative;
-  }
-
-  /* 竖向轴线：1px 细线，淡雅低对比度，减少主页面干扰 */
-  .track-line {
-    position: absolute;
-    top: 0;
-    bottom: -38px;
-    width: 1px;
-    background: var(--timeline-line);
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 1;
-  }
-
-  .timeline-row.is-first .track-line {
-    top: 10px;
-  }
-  .timeline-row.is-last .track-line {
-    bottom: calc(100% - 10px);
-  }
-
-  /* 时间轴节点：与首行时间戳垂直对齐 */
-  .track-node {
-    position: relative;
-    z-index: 2;
-    margin-top: 1px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--bg-primary);
-    padding: 2px 0;
-  }
-
-  .node-mood {
-    font-size: 1.15rem;
-    line-height: 1;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    transition: transform 0.2s ease;
-  }
-  .timeline-row:hover .node-mood {
-    transform: scale(1.25);
-  }
-
-  .node-circle-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: var(--radius-full);
-    background: var(--bg-primary);
-    border: 2px solid var(--text-primary);
-    box-shadow: 0 0 0 3px var(--bg-primary);
-    transition: all 0.2s ease;
-  }
-
-  .timeline-row:hover .node-circle-dot {
-    background: var(--text-primary);
-    transform: scale(1.3);
-    box-shadow: 0 0 0 3px var(--bg-primary);
-  }
-
-  .node-pin-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: var(--radius-full);
-    background: var(--text-primary);
-    box-shadow: 0 0 0 3px var(--bg-primary);
-    transition: all 0.2s ease;
-  }
-  .timeline-row:hover .node-pin-dot {
-    transform: scale(1.3);
-  }
-
-  /* 右侧卡片主体：极简现代无外框无背景 */
+  /* 卡片主体：极简现代无外框无背景，自然左对齐展宽 */
   .quote-card {
-    flex: 1;
+    width: 100%;
     background: transparent;
     border: none;
     border-radius: 0;
@@ -333,6 +249,19 @@ const hasTranslations = translations && Object.keys(translations).length > 0;
     justify-content: space-between;
     margin-bottom: 18px;
     min-height: 20px;
+  }
+
+  .card-header-left {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .card-mood-badge {
+    font-size: 0.9375rem;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
   }
 
   .post-time {
@@ -546,18 +475,11 @@ const hasTranslations = translations && Object.keys(translations).length > 0;
     .timeline-row {
       margin-bottom: 28px;
     }
-    .timeline-track {
-      width: 18px;
-      margin: 0 14px 0 0;
-    }
-    .track-node {
-      margin-top: 1px;
-    }
-    .node-mood {
-      font-size: 1rem;
-    }
     .card-header {
       margin-bottom: 12px;
+    }
+    .card-mood-badge {
+      font-size: 0.875rem;
     }
     .post-time {
       font-size: 0.75rem;

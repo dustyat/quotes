@@ -12,20 +12,19 @@ const sortedMemos = allMemos.sort((a, b) => b.data.date.getTime() - a.data.date.
 ---
 
 <BaseLayout title={SITE_CONFIG.title} description={SITE_CONFIG.description}>
-  <!-- 顶部极简介绍 -->
-  <section class="feed-intro">
-    <div class="intro-headline">
-      <div class="headline-brand">
+  <!-- 顶部特色展区：居中的 Quotes 品牌与随机卡片，以纯色浅色系随机背景填充 -->
+  {allMemos.length > 0 && (
+    <section class="hero-featured-box" id="hero-featured-box">
+      <div class="hero-brand-header">
         <h1 class="headline-title">{SITE_CONFIG.title}</h1>
       </div>
-    </div>
-  </section>
 
-  <!-- 金句时间轴流 -->
+      <RandomFeaturedQuote memos={allMemos} isFirst={true} />
+    </section>
+  )}
+
+  <!-- 金句流 -->
   <section class="quotes-stream">
-    <!-- 顶部置顶：随机卡片（统一样式与时间轴对齐） -->
-    {allMemos.length > 0 && <RandomFeaturedQuote memos={allMemos} isFirst={true} />}
-
     {sortedMemos.length === 0 ? (
       <div class="empty-state">
         <p>暂无金句，请通过 <code>npm run new</code> 发布第一条！</p>
@@ -39,7 +38,7 @@ const sortedMemos = allMemos.sort((a, b) => b.data.date.getTime() - a.data.date.
             id={memoId} 
             body={memo.body || ''} 
             data={memo.data}
-            isFirst={false}
+            isFirst={index === 0}
             isLast={index === sortedMemos.length - 1}
           >
             <Content />
@@ -51,30 +50,44 @@ const sortedMemos = allMemos.sort((a, b) => b.data.date.getTime() - a.data.date.
 </BaseLayout>
 
 <style>
-  .feed-intro {
-    padding: 48px 0 20px 0;
-    margin-bottom: 16px;
+  .hero-featured-box {
+    background: var(--hero-bg, #faf4eb);
+    border: 1px solid var(--hero-border, #efe3d2);
+    border-radius: 24px;
+    padding: 52px 36px 32px 36px;
+    margin-top: 24px;
+    margin-bottom: 56px;
+    transition: background-color 0.45s ease, border-color 0.45s ease;
+    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.03);
   }
-  .intro-headline {
-    margin-bottom: 0;
+
+  :global([data-theme="dark"]) .hero-featured-box {
+    background: var(--hero-bg-dark, #231e17);
+    border-color: var(--hero-border-dark, rgba(255, 255, 255, 0.08));
+    box-shadow: 0 4px 24px -2px rgba(0, 0, 0, 0.3);
   }
-  .headline-brand {
-    display: inline-flex;
+
+  .hero-brand-header {
+    text-align: center;
+    display: flex;
+    justify-content: center;
     align-items: center;
-    gap: 12px;
+    padding-top: 4px;
+    margin-bottom: 40px;
   }
+
   .headline-title {
-    font-size: 1.875rem;
-    font-weight: 800;
+    font-size: 2.5rem;
+    font-weight: 900;
     color: var(--text-primary);
-    letter-spacing: -0.02em;
+    letter-spacing: -0.035em;
     line-height: 1;
   }
 
   .quotes-stream {
     display: flex;
     flex-direction: column;
-    padding-top: 14px;
+    padding-top: 8px;
   }
 
   .empty-state {
@@ -92,15 +105,20 @@ const sortedMemos = allMemos.sort((a, b) => b.data.date.getTime() - a.data.date.
   }
 
   @media (max-width: 640px) {
-    .feed-intro {
-      padding: 28px 0 16px 0;
-      margin-bottom: 10px;
+    .hero-featured-box {
+      border-radius: 18px;
+      padding: 36px 20px 24px 20px;
+      margin-top: 16px;
+      margin-bottom: 40px;
+    }
+    .hero-brand-header {
+      margin-bottom: 28px;
     }
     .headline-title {
-      font-size: 1.5rem;
+      font-size: 2rem;
     }
     .quotes-stream {
-      padding-top: 8px;
+      padding-top: 4px;
     }
   }
 </style>

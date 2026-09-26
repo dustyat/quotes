@@ -67,19 +67,13 @@ const initial = quotesData[0] || null;
 
 {initial && (
   <div class:list={['timeline-row', 'random-featured-row', { 'is-first': isFirst }]} id="random-featured-row">
-    <!-- 左侧：时间轴轨道与骰子心情节点（最左侧，与导航首字垂直对齐） -->
-    <div class="timeline-track">
-      <div class="track-line"></div>
-      <div class="track-node" title={t('feed.random')}>
-        <span class="node-mood random-dice-node" id="random-dice-trigger" title="点击也可随机换一条">🎲</span>
-      </div>
-    </div>
-
-    <!-- 右侧：金句卡片主体（宽度自然延展） -->
+    <!-- 金句卡片主体（宽度自然延展，左对齐） -->
     <article class="quote-card random-quote-card">
       <!-- 顶部信息栏：左侧“随机卡片”，右侧“换一换” -->
       <div class="card-header random-card-header">
-        <span class="random-side-badge">{t('feed.random')}</span>
+        <span class="random-side-badge" id="random-dice-trigger" title="点击也可随机换一条">
+          {t('feed.random')}
+        </span>
 
         <button id="shuffle-btn" class="shuffle-action-btn" title={t('feed.shuffle')} aria-label={t('feed.shuffle')}>
           <svg class="shuffle-spin-icon" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -338,6 +332,34 @@ const initial = quotesData[0] || null;
       }
     }
 
+    // 现代浅色系纯色调色板（每次访问随机切换，换一换也可灵动切换）
+    const HERO_PALETTES = [
+      { name: 'sage', light: '#edf4ef', dark: '#14221a', borderLight: '#dbe8de', borderDark: 'rgba(255, 255, 255, 0.08)' },
+      { name: 'oat', light: '#faf4eb', dark: '#231e17', borderLight: '#efe3d2', borderDark: 'rgba(255, 255, 255, 0.08)' },
+      { name: 'lavender', light: '#f2f0f8', dark: '#1c1827', borderLight: '#e4e0f0', borderDark: 'rgba(255, 255, 255, 0.08)' },
+      { name: 'sky', light: '#edf3f8', dark: '#141f27', borderLight: '#d9e5ee', borderDark: 'rgba(255, 255, 255, 0.08)' },
+      { name: 'blush', light: '#faf1f0', dark: '#25191b', borderLight: '#f2dedc', borderDark: 'rgba(255, 255, 255, 0.08)' },
+      { name: 'butter', light: '#faf6ea', dark: '#232116', borderLight: '#eee7cd', borderDark: 'rgba(255, 255, 255, 0.08)' },
+      { name: 'slate', light: '#f1f3f6', dark: '#1a1d22', borderLight: '#e0e4ea', borderDark: 'rgba(255, 255, 255, 0.08)' },
+      { name: 'matcha', light: '#eff5ee', dark: '#162217', borderLight: '#d9e7d6', borderDark: 'rgba(255, 255, 255, 0.08)' }
+    ];
+
+    let currentPaletteIndex = Math.floor(Math.random() * HERO_PALETTES.length);
+
+    function applyHeroPalette(index) {
+      const p = HERO_PALETTES[index];
+      if (!p) return;
+      const heroBox = document.getElementById('hero-featured-box');
+      if (!heroBox) return;
+      heroBox.style.setProperty('--hero-bg', p.light);
+      heroBox.style.setProperty('--hero-bg-dark', p.dark);
+      heroBox.style.setProperty('--hero-border', p.borderLight);
+      heroBox.style.setProperty('--hero-border-dark', p.borderDark);
+    }
+
+    // 初次加载应用随机色
+    applyHeroPalette(currentPaletteIndex);
+
     function doShuffle() {
       // 图标与骰子旋转微动效
       if (shuffleBtn) {
@@ -351,6 +373,18 @@ const initial = quotesData[0] || null;
         diceNode.classList.add('dice-roll');
         setTimeout(() => diceNode.classList.remove('dice-roll'), 600);
       }
+
+      // 换一换时同步灵动切换下一个不同的浅色系纯色背景
+      let nextPaletteIndex;
+      if (HERO_PALETTES.length > 1) {
+        do {
+          nextPaletteIndex = Math.floor(Math.random() * HERO_PALETTES.length);
+        } while (nextPaletteIndex === currentPaletteIndex);
+      } else {
+        nextPaletteIndex = 0;
+      }
+      currentPaletteIndex = nextPaletteIndex;
+      applyHeroPalette(currentPaletteIndex);
 
       // 抽取不同于当前的一篇
       let nextIndex;
@@ -389,86 +423,19 @@ const initial = quotesData[0] || null;
 </script>
 
 <style>
-  /* 继承与对齐时间轴布局 */
+  /* 基础行布局：融入 Hero 容器 */
   .timeline-row {
-    display: flex;
-    align-items: stretch;
+    display: block;
     position: relative;
-    margin-bottom: 38px;
+    margin-bottom: 0;
   }
 
   .random-featured-row {
-    margin-top: 12px;
-  }
-
-  /* 最左侧时间轴轨道：移至最左侧，与导航首字垂直对齐 */
-  .timeline-track {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 22px;
-    margin: 0 20px 0 0;
-    flex-shrink: 0;
-    position: relative;
-  }
-
-  /* 竖向轴线：1px 细线，淡雅低干扰 */
-  .track-line {
-    position: absolute;
-    top: 0;
-    bottom: -38px;
-    width: 1px;
-    background: var(--timeline-line);
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 1;
-  }
-
-  .timeline-row.is-first .track-line {
-    top: 10px;
-  }
-
-  /* 时间轴节点：与首行文字垂直对齐 */
-  .track-node {
-    position: relative;
-    z-index: 2;
-    margin-top: 1px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--bg-primary);
-    padding: 2px 0;
-  }
-
-  .node-mood {
-    font-size: 1.25rem;
-    line-height: 1;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: transform 0.3s ease;
-  }
-
-  .node-mood:hover {
-    transform: scale(1.3) rotate(15deg);
-  }
-
-  .dice-roll {
-    animation: diceShake 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-
-  @keyframes diceShake {
-    0% { transform: scale(1) rotate(0deg); }
-    25% { transform: scale(1.3) rotate(-25deg); }
-    50% { transform: scale(1.3) rotate(25deg); }
-    75% { transform: scale(1.2) rotate(-10deg); }
-    100% { transform: scale(1) rotate(0deg); }
-  }
-
-  /* 右侧卡片主体：极简现代无外框无背景 */
+    margin-top: 0;
+    margin-bottom: 0;
+  /* 卡片主体：极简现代无外框无背景，自然左对齐展宽 */
   .quote-card {
-    flex: 1;
+    width: 100%;
     background: transparent;
     border: none;
     border-radius: 0;
@@ -498,11 +465,20 @@ const initial = quotesData[0] || null;
   }
 
   .random-side-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     font-size: 0.8125rem;
     font-weight: 600;
     color: var(--text-muted);
     line-height: 1.4;
-    display: inline-block;
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.15s ease;
+  }
+
+  .random-side-badge:hover {
+    color: var(--text-primary);
   }
 
   .shuffle-action-btn {
@@ -688,8 +664,12 @@ const initial = quotesData[0] || null;
     gap: 3px;
     margin-left: 6px;
     padding: 2px 4px;
-    background: var(--bg-secondary);
+    background: rgba(0, 0, 0, 0.04);
     border-radius: var(--radius-full);
+  }
+
+  :global([data-theme="dark"]) .card-lang-pills {
+    background: rgba(255, 255, 255, 0.08);
   }
   .card-lang-pill {
     padding: 1px 6px;
@@ -715,16 +695,6 @@ const initial = quotesData[0] || null;
   @media (max-width: 640px) {
     .timeline-row {
       margin-bottom: 28px;
-    }
-    .timeline-track {
-      width: 18px;
-      margin: 0 14px 0 0;
-    }
-    .track-node {
-      margin-top: 1px;
-    }
-    .node-mood {
-      font-size: 1rem;
     }
     .card-header {
       margin-bottom: 12px;

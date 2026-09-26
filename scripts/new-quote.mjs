@@ -23,7 +23,7 @@ async function main() {
 
   const source = await question('📖 来源/出处 (如: 查理·芒格 / 《置身事内》/ 留空): ');
   const tagsInput = await question('🏷️  标签 (英文逗号分隔，如: 思考,读书笔记 / 留空): ');
-  const mood = await question('🌟 心情/微标 (如: 💡, ☕, 🌌, 📚 / 留空): ');
+  const mood = await question('🌟 心情/微标 (如: 💡, ☕, 🌌, 📚, ⚡, ♟️, 🏛️, 🛡️, ⛵, ⏳, 🎭, 🏔️, 🕊️, 🌱, 🎯, 🤖, 📐, 📈, 🎨, 🍵, 🦉, 🚀 / 留空智能推导): ');
   const isPinned = await question('📌 是否置顶? (y/N): ');
 
   const now = new Date();
