@@ -136,16 +136,18 @@ const htmlLang = locale === 'zh' ? 'zh-CN' : locale;
   </main>
 
   <!-- 极简底部版权 -->
-  <footer class="centered-footer">
-    <p class="footer-slogan">{SITE_CONFIG.slogan}</p>
-    <div class="footer-meta">
-      <span>© 2026 {SITE_CONFIG.title}</span>
-      <span>·</span>
-      <a href="/llms.txt" target="_blank">llms.txt</a>
-      <span>·</span>
-      <a href="/rss.xml" target="_blank">RSS</a>
-      <span>·</span>
-      <a href="/api/memos.json" target="_blank">API</a>
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p class="footer-slogan">{SITE_CONFIG.slogan}</p>
+      <div class="footer-meta">
+        <span>© 2026 {SITE_CONFIG.title}</span>
+        <span>·</span>
+        <a href="/llms.txt" target="_blank">llms.txt</a>
+        <span>·</span>
+        <a href="/rss.xml" target="_blank">RSS</a>
+        <span>·</span>
+        <a href="/api/memos.json" target="_blank">API</a>
+      </div>
     </div>
   </footer>
 
@@ -156,21 +158,36 @@ const htmlLang = locale === 'zh' ? 'zh-CN' : locale;
 </html>
 
 <style>
-  .centered-footer {
-    max-width: 760px;
-    margin: 0 auto;
+  .site-footer {
     width: 100%;
-    padding: 32px 20px 48px 20px;
-    text-align: center;
+    margin-top: auto;
     border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: center;
     box-sizing: border-box;
   }
+
+  .footer-inner {
+    max-width: 760px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 36px 20px 48px 20px;
+    text-align: center;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
   .footer-slogan {
     font-size: 0.875rem;
     color: var(--text-secondary);
     font-style: italic;
     margin-bottom: 8px;
+    text-align: center;
   }
+
   .footer-meta {
     display: flex;
     align-items: center;
@@ -178,14 +195,16 @@ const htmlLang = locale === 'zh' ? 'zh-CN' : locale;
     gap: 8px;
     font-size: 0.75rem;
     color: var(--text-muted);
+    text-align: center;
   }
+
   .footer-meta a:hover {
     color: var(--accent);
     text-decoration: underline;
   }
 
   @media (max-width: 640px) {
-    .centered-footer {
+    .footer-inner {
       padding: 24px 14px 40px 14px;
     }
   }

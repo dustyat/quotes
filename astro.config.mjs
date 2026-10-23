@@ -3,7 +3,11 @@ import sitemap from '@astrojs/sitemap';
 
 export default defineConfig({
   site: 'https://quotes.dustyat.com',
-  integrations: [sitemap()],
+  integrations: [
+    sitemap({
+      filter: (page) => !page.includes('/partials/'),
+    }),
+  ],
   output: 'static',
   i18n: {
     defaultLocale: 'zh',

@@ -129,6 +129,12 @@ button {
   }
 }
 
+/* 时间轴卡片现代原生 DOM 虚拟化渲染优化 (离屏内容跳过渲染重排，120 FPS 满帧滑动) */
+.timeline-row {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 160px;
+}
+
 /* 玻璃拟态工具类 */
 .glass-nav {
   position: sticky;
@@ -151,4 +157,56 @@ button {
 ::-webkit-scrollbar-thumb {
   background: var(--border-color);
   border-radius: 9999px;
+}
+
+/* 页面底部静态版权区居中保证 */
+.site-footer {
+  width: 100%;
+  margin-top: auto;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.footer-inner {
+  max-width: 760px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 36px 20px 48px 20px;
+  text-align: center;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.footer-slogan {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  font-style: italic;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.footer-meta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.footer-meta a:hover {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+@media (max-width: 640px) {
+  .footer-inner {
+    padding: 24px 14px 40px 14px;
+  }
 }

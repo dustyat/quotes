@@ -1,0 +1,71 @@
+---
+export const partial = true;
+
+import { getCollection, render } from 'astro:content';
+import QuoteCard from '@/components/QuoteCard.astro';
+import { DEFAULT_LOCALE, type Locale } from '@/i18n/ui';
+
+export const PAGE_SIZE = 10;
+
+export async function getStaticPaths() {
+  const allMemos = await getCollection('memos');
+  const sortedMemos = allMemos.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+  const totalMemos = sortedMemos.length;
+  const totalPages = Math.ceil(totalMemos / PAGE_SIZE);
+
+  const locales: Locale[] = ['zh', 'en', 'ja', 'ko', 'vi'];
+  const paths = [];
+
+  for (const locale of locales) {
+    // 第 1 页在首页直出，流式片段从第 2 页开始静态编译
+    for (let page = 2; page <= totalPages; page++) {
+      const start = (page - 1) * PAGE_SIZE;
+      const end = start + PAGE_SIZE;
+      const memosForPage = sortedMemos.slice(start, end);
+
+      const slug = locale === DEFAULT_LOCALE ? `${page}` : `${locale}/${page}`;
+
+      paths.push({
+        params: { slug },
+        props: {
+          memos: memosForPage,
+          locale,
+          page,
+          totalPages,
+          totalMemos,
+          startIndex: start,
+        },
+      });
+    }
+  }
+
+  return paths;
+}
+
+const { memos, locale, startIndex, totalMemos } = Astro.props as {
+  memos: any[];
+  locale: Locale;
+  page: number;
+  totalPages: number;
+  totalMemos: number;
+  startIndex: number;
+};
+---
+
+{memos.map(async (memo, index) => {
+  const { Content } = await render(memo);
+  const memoId = memo.id.replace(/\.md$/, '');
+  const globalIndex = startIndex + index;
+  return (
+    <QuoteCard 
+      id={memoId} 
+      body={memo.body || ''} 
+      data={memo.data}
+      isFirst={false}
+      isLast={globalIndex === totalMemos - 1}
+      locale={locale}
+    >
+      <Content />
+    </QuoteCard>
+  );
+})}

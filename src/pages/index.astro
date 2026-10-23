@@ -4,11 +4,17 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import QuoteCard from '@/components/QuoteCard.astro';
 import RandomFeaturedQuote from '@/components/RandomFeaturedQuote.astro';
 import { SITE_CONFIG } from '@/utils/config';
+import { PAGE_SIZE } from './partials/feed/[...slug].astro';
 
 const allMemos = await getCollection('memos');
 
 // 下方时间轴恢复自然时间倒序排列
 const sortedMemos = allMemos.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+
+// 首屏极速直出前 PAGE_SIZE 条，后续无感流式惰性加载
+const initialMemos = sortedMemos.slice(0, PAGE_SIZE);
+const totalMemos = sortedMemos.length;
+const totalPages = Math.ceil(totalMemos / PAGE_SIZE);
 ---
 
 <BaseLayout title={SITE_CONFIG.title} description={SITE_CONFIG.description}>
@@ -24,13 +30,13 @@ const sortedMemos = allMemos.sort((a, b) => b.data.date.getTime() - a.data.date.
   )}
 
   <!-- 金句流 -->
-  <section class="quotes-stream">
+  <section class="quotes-stream" id="quotes-stream">
     {sortedMemos.length === 0 ? (
       <div class="empty-state">
         <p>暂无金句，请通过 <code>npm run new</code> 发布第一条！</p>
       </div>
     ) : (
-      sortedMemos.map(async (memo, index) => {
+      initialMemos.map(async (memo, index) => {
         const { Content } = await render(memo);
         const memoId = memo.id.replace(/\.md$/, '');
         return (
@@ -39,15 +45,89 @@ const sortedMemos = allMemos.sort((a, b) => b.data.date.getTime() - a.data.date.
             body={memo.body || ''} 
             data={memo.data}
             isFirst={index === 0}
-            isLast={index === sortedMemos.length - 1}
+            isLast={index === totalMemos - 1}
           >
             <Content />
           </QuoteCard>
         );
       })
     )}
+
+    {totalPages > 1 && (
+      <div 
+        id="stream-sentinel" 
+        class="stream-sentinel" 
+        data-next-page="2" 
+        data-total-pages={totalPages} 
+        data-locale="zh"
+      >
+        <div class="stream-loading" id="stream-loading">
+          <div class="loading-pulse-dots">
+            <span></span><span></span><span></span>
+          </div>
+          <span class="loading-text">正在唤醒更多经典洞见...</span>
+        </div>
+      </div>
+    )}
   </section>
 </BaseLayout>
+
+<script is:inline>
+  (function() {
+    const sentinel = document.getElementById('stream-sentinel');
+    const loading = document.getElementById('stream-loading');
+    if (!sentinel) return;
+
+    let nextPage = 2;
+    const totalPages = parseInt(sentinel.getAttribute('data-total-pages') || '1', 10);
+    const locale = sentinel.getAttribute('data-locale') || 'zh';
+    let isLoading = false;
+
+    async function loadNextBatch() {
+      if (isLoading || nextPage > totalPages) return;
+      isLoading = true;
+      if (loading) loading.style.opacity = '1';
+
+      try {
+        const slug = locale === 'zh' ? `${nextPage}` : `${locale}/${nextPage}`;
+        const res = await fetch(`/partials/feed/${slug}/`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const html = await res.text();
+
+        const temp = document.createElement('div');
+        temp.innerHTML = html;
+
+        const rows = Array.from(temp.children);
+        rows.forEach((row, i) => {
+          row.classList.add('stream-item-enter');
+          row.style.animationDelay = `${i * 35}ms`;
+          sentinel.parentNode.insertBefore(row, sentinel);
+        });
+
+        nextPage++;
+
+        if (nextPage > totalPages) {
+          sentinel.remove();
+          observer.disconnect();
+        }
+      } catch (err) {
+        console.error('Failed to load next feed batch', err);
+      } finally {
+        isLoading = false;
+      }
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting && !isLoading && nextPage <= totalPages) {
+        loadNextBatch();
+      }
+    }, {
+      rootMargin: '450px 0px',
+    });
+
+    observer.observe(sentinel);
+  })();
+</script>
 
 <style>
   .hero-featured-box {
@@ -102,6 +182,80 @@ const sortedMemos = allMemos.sort((a, b) => b.data.date.getTime() - a.data.date.
     background: var(--badge-bg);
     padding: 4px 8px;
     border-radius: 4px;
+  }
+
+  /* 流式加载哨兵与微光动效 */
+  .stream-sentinel {
+    min-height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 0 36px 0;
+  }
+
+  .stream-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    opacity: 0.85;
+    transition: opacity 0.2s ease;
+  }
+
+  .loading-pulse-dots {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .loading-pulse-dots span {
+    width: 6px;
+    height: 6px;
+    background: var(--text-muted);
+    border-radius: 50%;
+    opacity: 0.3;
+    animation: pulseDot 1.4s infinite ease-in-out both;
+  }
+
+  .loading-pulse-dots span:nth-child(1) {
+    animation-delay: -0.32s;
+  }
+  .loading-pulse-dots span:nth-child(2) {
+    animation-delay: -0.16s;
+  }
+
+  @keyframes pulseDot {
+    0%, 80%, 100% {
+      transform: scale(0.7);
+      opacity: 0.25;
+    }
+    40% {
+      transform: scale(1.2);
+      opacity: 1;
+      background: var(--accent);
+    }
+  }
+
+  .loading-text {
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+    letter-spacing: -0.01em;
+  }
+
+  /* 新卡片平滑滑入动效 */
+  :global(.stream-item-enter) {
+    animation: streamFadeInUp 0.38s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  @keyframes streamFadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(18px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   @media (max-width: 640px) {
